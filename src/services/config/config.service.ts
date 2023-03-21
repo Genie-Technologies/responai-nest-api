@@ -1,4 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import * as path from 'path';
+import { Messages } from 'src/db/models/messages.entity';
 
 require('dotenv').config();
 
@@ -29,6 +31,18 @@ class ConfigService {
   }
 
   public getTypeOrmConfig(): TypeOrmModuleOptions {
+    // here is the path to the entities folder: src\db\models\messages.entity.ts
+    const migrationsPath = path.join(__dirname, '..', '..', 'migration');
+    const entitiesPath = path.join(
+      __dirname,
+      '..',
+      'db',
+      'models',
+      '*{.ts,.js}',
+    );
+
+    console.log('entitiesPath', entitiesPath);
+
     return {
       type: 'postgres',
 
@@ -37,14 +51,11 @@ class ConfigService {
       username: this.getValue('POSTGRES_USER'),
       password: this.getValue('POSTGRES_PASSWORD'),
       database: this.getValue('POSTGRES_DATABASE'),
-
-      entities: ['**/*.entity{.ts,.js}'],
-
+      entities: [Messages],
       migrationsTableName: 'migration',
-
-      migrations: ['src/migration/*.ts'],
-
+      migrations: [path.join(migrationsPath, '*{.ts,.js}')],
       ssl: true,
+      synchronize: false,
     };
   }
 }

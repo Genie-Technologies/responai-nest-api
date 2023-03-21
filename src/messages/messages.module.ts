@@ -6,8 +6,8 @@ import { Messages } from '../db/models/messages.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Messages])],
-  providers: [MessagesService],
   controllers: [MessagesController],
-  exports: [],
+  exports: [MessagesService],
+  providers: [MessagesService],
 })
 export class MessagesModule {}
