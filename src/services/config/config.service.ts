@@ -55,7 +55,7 @@ class ConfigService {
       migrationsTableName: 'migration',
       migrations: [path.join(migrationsPath, '*{.ts,.js}')],
       ssl: true,
-      synchronize: false,
+      synchronize: this.isProduction() ? false : true,
     };
   }
 }
