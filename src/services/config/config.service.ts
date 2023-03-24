@@ -1,6 +1,7 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as path from 'path';
 import { Messages } from 'src/db/models/messages.entity';
+import { Users } from 'src/db/models/users.entity';
 
 require('dotenv').config();
 
@@ -51,7 +52,7 @@ class ConfigService {
       username: this.getValue('POSTGRES_USER'),
       password: this.getValue('POSTGRES_PASSWORD'),
       database: this.getValue('POSTGRES_DATABASE'),
-      entities: [Messages],
+      entities: [Messages, Users],
       migrationsTableName: 'migration',
       migrations: [path.join(migrationsPath, '*{.ts,.js}')],
       ssl: true,
