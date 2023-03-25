@@ -24,7 +24,7 @@ export class WebsocketsGateway
   }
 
   handleConnection(client: Socket, ...args: any[]) {
-    console.log(`----> Client connected: ${client.id}`);
+    console.log(`----> Client connected: `, client);
   }
 
   handleDisconnect(client: Socket) {
@@ -35,5 +35,14 @@ export class WebsocketsGateway
   handleMessage(client: Socket, payload: any): void {
     console.log('Message received: ', payload, 'from client: ', client.id);
     this.server.emit('message', payload);
+  }
+
+  @SubscribeMessage('join')
+  handleJoin(client: Socket, payload: any): void {
+    console.log('Join received: ', payload, 'from client: ', client.id);
+    client.join(payload.room);
+    this.server
+      .to(payload.room)
+      .emit('message', { message: 'New user joined' });
   }
 }
