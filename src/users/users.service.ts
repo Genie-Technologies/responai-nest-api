@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { Users } from 'src/db/models/users.entity';
+import { MessagesService } from 'src/messages/messages.service';
 import { Repository } from 'typeorm';
 
 export interface UserBody {
@@ -21,6 +22,7 @@ export class UsersService {
   constructor(
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
+    private messageService: MessagesService,
   ) {}
 
   USER_NOT_FOUND = 'User not found';
@@ -30,6 +32,11 @@ export class UsersService {
     const uuidPattern =
       /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/i;
     return uuidPattern.test(uuid);
+  }
+
+  healthCheck() {
+    const msgs = this.messageService.getMessages();
+    return msgs;
   }
 
   async getUser(id: string): Promise<Users> {

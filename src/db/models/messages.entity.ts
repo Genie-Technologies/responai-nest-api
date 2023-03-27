@@ -3,7 +3,7 @@ import { BaseEntity } from './base.entity';
 
 @Entity('messages') // <-- Note the lowercase 'm' here
 export class Messages extends BaseEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: number;
 
   @Column()
@@ -26,4 +26,7 @@ export class Messages extends BaseEntity {
 
   @Column()
   receiver_name: string;
+
+  @Column()
+  thread_id: number;
 }

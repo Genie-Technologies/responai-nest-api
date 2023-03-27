@@ -1,9 +1,15 @@
 import { Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { UserBody, UsersService } from './users.service';
+import { MessagesService } from 'src/messages/messages.service';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get()
+  healthCheck() {
+    return this.usersService.healthCheck();
+  }
 
   @Get(':id')
   async getUser(@Param('id') id: string) {
