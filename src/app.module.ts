@@ -7,6 +7,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { WebsocketsGateway } from './websockets/websockets.gateway';
 import { WebsocketsModule } from './websockets/websockets.module';
+import { AuthenticationService } from './authentication/authentication.service';
+import { AuthenticationModule } from './authentication/authentication.module';
 
 @Module({
   imports: [
@@ -14,8 +16,9 @@ import { WebsocketsModule } from './websockets/websockets.module';
     MessagesModule,
     WebsocketsModule,
     UsersModule,
+    AuthenticationModule,
   ],
   controllers: [AppController],
-  providers: [AppService, WebsocketsGateway],
+  providers: [AppService, WebsocketsGateway, AuthenticationService],
 })
 export class AppModule {}

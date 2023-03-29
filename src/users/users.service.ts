@@ -35,34 +35,44 @@ export class UsersService {
   }
 
   healthCheck() {
-    const msgs = this.messageService.getMessages();
-    return msgs;
+    return 'Users service is up and running';
   }
 
   async getUser(id: string): Promise<Users> {
     try {
-      if (!this.isUUID(id)) {
-        throw new Error(this.INVALID_UUID);
-      }
-      const foundUser = await this.usersRepository.findOne({
-        where: [{ id }, { authOId: id }],
-      });
+      console.log('Finding user by this id: ', id);
 
-      //  Do not return the password
-      delete foundUser.password;
+      let foundUser: Users;
+
+      if (!this.isUUID(id)) {
+        console.log('id is not a UUID, trying to find by authOId: ', id);
+        foundUser = await this.usersRepository.findOne({
+          where: { authOId: id },
+        });
+      } else {
+        foundUser = await this.usersRepository.findOne({
+          where: { id },
+        });
+      }
+
+      console.log('foundUser: ', foundUser);
 
       if (!foundUser) {
         throw new Error(this.USER_NOT_FOUND);
       }
+
+      delete foundUser.password;
+
       return foundUser;
     } catch (error) {
+      console.log('Error: ', error);
       throw error;
     }
   }
 
   async createUser(user?: UserBody) {
     try {
-      console.log('user: ', user);
+      console.log('Creating user: ', user);
       return await this.usersRepository.save({
         id: randomUUID().toString(),
         lastLogin: new Date(),
