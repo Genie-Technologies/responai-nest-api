@@ -17,7 +17,7 @@ export class UsersController {
   }
 
   @Post('create')
-  async createUser(@Req() req: Request) {
+  async createUser(@Req() req) {
     const userBody: UserBody = req.body as any;
     return await this.usersService.createUser(userBody);
   }
