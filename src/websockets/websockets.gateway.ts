@@ -23,8 +23,10 @@ export class WebsocketsGateway
     console.log('----> Websockets initialized');
   }
 
-  handleConnection(client: Socket, ...args: any[]) {
-    console.log(`----> Client connected: `, client);
+  async handleConnection(client: Socket, ...args: any[]) {
+    const token = this.getTokenFromClient(client);
+    console.log('token: ', token);
+    console.log(`----> Client connected: `, client.id);
   }
 
   handleDisconnect(client: Socket) {
@@ -44,5 +46,19 @@ export class WebsocketsGateway
     this.server
       .to(payload.room)
       .emit('message', { message: 'New user joined' });
+  }
+
+  @SubscribeMessage('leave')
+  handleLeave(client: Socket, payload: any): void {
+    console.log('Leave received: ', payload, 'from client: ', client.id);
+    client.leave(payload.room);
+    this.server.to(payload.room).emit('message', { message: 'User left' });
+  }
+
+  getTokenFromClient(client: Socket): string {
+    // The token is in the cookies of the client
+    const cookies = client.handshake.headers.cookie;
+    const token = cookies.split(';')[0];
+    return token;
   }
 }

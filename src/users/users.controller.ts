@@ -1,5 +1,6 @@
-import { Controller, Get, Param, Post, Req } from '@nestjs/common';
+import { Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { UserBody, UsersService } from './users.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
 export class UsersController {
@@ -10,9 +11,14 @@ export class UsersController {
     return await this.usersService.getUsers();
   }
 
+  healthCheck() {
+    return this.usersService.healthCheck();
+  }
+
+  @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async getUser(@Param('id') id: string) {
-    console.log('id: ', id);
+    console.log('------> id: ', id);
     try {
       return await this.usersService.getUser(id);
     } catch (error) {

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { Users } from 'src/db/models/users.entity';
+import { MessagesService } from 'src/messages/messages.service';
 import { Repository } from 'typeorm';
 
 export interface UserBody {
@@ -21,6 +22,7 @@ export class UsersService {
   constructor(
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
+    private messageService: MessagesService,
   ) {}
 
   USER_NOT_FOUND = 'User not found';
@@ -40,29 +42,45 @@ export class UsersService {
     }
   }
 
+  healthCheck() {
+    return 'Users service is up and running';
+  }
+
   async getUser(id: string): Promise<Users> {
     try {
-      if (!this.isUUID(id)) {
-        throw new Error(this.INVALID_UUID);
-      }
-      const foundUser = await this.usersRepository.findOne({
-        where: [{ id }, { authOId: id }],
-      });
+      console.log('Finding user by this id: ', id);
 
-      //  Do not return the password
-      delete foundUser.password;
+      let foundUser: Users;
+
+      if (!this.isUUID(id)) {
+        console.log('id is not a UUID, trying to find by authOId: ', id);
+        foundUser = await this.usersRepository.findOne({
+          where: { authOId: id },
+        });
+      } else {
+        foundUser = await this.usersRepository.findOne({
+          where: { id },
+        });
+      }
+
+      console.log('foundUser: ', foundUser);
 
       if (!foundUser) {
         throw new Error(this.USER_NOT_FOUND);
       }
+
+      delete foundUser.password;
+
       return foundUser;
     } catch (error) {
+      console.log('Error: ', error);
       throw error;
     }
   }
 
   async createUser(user?: UserBody) {
     try {
+      console.log('Creating user: ', user);
       return await this.usersRepository.save({
         id: randomUUID().toString(),
         lastLogin: new Date(),
