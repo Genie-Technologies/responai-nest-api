@@ -32,6 +32,14 @@ export class UsersService {
     return uuidPattern.test(uuid);
   }
 
+  async getUsers(): Promise<Users[]> {
+    try {
+      return await this.usersRepository.find();
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async getUser(id: string): Promise<Users> {
     try {
       if (!this.isUUID(id)) {
@@ -55,7 +63,6 @@ export class UsersService {
 
   async createUser(user?: UserBody) {
     try {
-      console.log('user: ', user);
       return await this.usersRepository.save({
         id: randomUUID().toString(),
         lastLogin: new Date(),

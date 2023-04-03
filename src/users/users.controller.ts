@@ -5,6 +5,11 @@ import { UserBody, UsersService } from './users.service';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Get()
+  async getUsers() {
+    return await this.usersService.getUsers();
+  }
+
   @Get(':id')
   async getUser(@Param('id') id: string) {
     console.log('id: ', id);

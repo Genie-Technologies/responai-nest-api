@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
 import { BaseEntity } from './base.entity';
 
 @Entity('messages') // <-- Note the lowercase 'm' here
@@ -15,4 +15,6 @@ export class Messages extends BaseEntity {
   @Column()
   receiver_id: number;
 
+  @CreateDateColumn()
+  created_date: Date;
 }
