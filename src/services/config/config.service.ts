@@ -55,7 +55,7 @@ class ConfigService {
       entities: [Messages, Users],
       migrationsTableName: 'migration',
       migrations: [path.join(migrationsPath, '*{.ts,.js}')],
-      ssl: true,
+      // ssl: true,
       synchronize: this.isProduction() ? false : true,
     };
   }

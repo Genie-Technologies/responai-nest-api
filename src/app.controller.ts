@@ -6,12 +6,12 @@ import { UsersService } from './users/users.service';
 export class AppController {
   constructor(
     private readonly appService: AppService,
-    private userService: UsersService,
+    // private userService: UsersService,
   ) {}
 
   @Get()
   getHello(): string {
-    this.userService.getUser('kawjdnkwjd');
+    // this.userService.getUser('kawjdnkwjd');
     return this.appService.getHello();
   }
 }
