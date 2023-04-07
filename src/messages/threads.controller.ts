@@ -1,5 +1,6 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body } from '@nestjs/common';
 import { MessagesService } from './messages.service';
+import { Threads } from 'src/db/models/threads.entity';
 
 @Controller('threads')
 export class ThreadsController {
@@ -16,8 +17,10 @@ export class ThreadsController {
     return await this.messagesService.getThreads(userId);
   }
 
-  @Post('threads')
-  async createThread(@Param('userId') userId: string) {
-    return await this.messagesService.createThread(userId);
+  @Post('create')
+  // The body of the request will be the new thread
+  async createThread(@Body() newThread: Threads) {
+    console.log('Controller: --> createThread: ', newThread, ' <--');
+    return await this.messagesService.createThread(newThread);
   }
 }

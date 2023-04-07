@@ -10,4 +10,9 @@ export class MessagesController {
   async getMessages() {
     return await this.messagesService.getMessages();
   }
+
+  @Get('thread/:threadId')
+  async getMessagesByThread(@Param('threadId') threadId: string) {
+    return await this.messagesService.getMessagesByThread(threadId);
+  }
 }

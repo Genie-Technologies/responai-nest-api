@@ -42,4 +42,7 @@ export class Users extends BaseEntity {
 
   @Column({ nullable: true })
   locale: string;
+
+  @Column('text', { nullable: true })
+  friends: string[];
 }

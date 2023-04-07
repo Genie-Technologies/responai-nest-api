@@ -9,18 +9,21 @@ export class Threads {
   @Column()
   userId: string;
 
-  @Column()
-  messageId: number;
+  @Column('text', { array: true, nullable: true })
+  participants: string[];
 
   @Column('text', { array: true, nullable: true })
-  user: string[];
-
-  @Column('text', { array: true, nullable: true })
-  message: string[];
+  messages: string[];
 
   @Column()
   createdAt: Date;
 
   @Column()
   isActive: boolean;
+
+  @Column({ nullable: true })
+  lastMessage: string;
+
+  @Column({ nullable: true })
+  threadName: string;
 }
