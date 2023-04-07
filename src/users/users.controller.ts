@@ -11,7 +11,7 @@ export class UsersController {
     return this.usersService.healthCheck();
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async getUser(@Param('id') id: string) {
     console.log('------> id: ', id);

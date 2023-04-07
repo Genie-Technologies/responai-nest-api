@@ -1,5 +1,6 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { MessagesService } from './messages.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('messages')
 export class MessagesController {

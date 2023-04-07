@@ -29,4 +29,5 @@ export class Messages extends BaseEntity {
 
   @Column()
   thread_id: number;
+  threads: any;
 }
