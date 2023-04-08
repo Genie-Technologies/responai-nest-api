@@ -17,10 +17,7 @@ export class Users extends BaseEntity {
   authOId: string;
 
   @Column({ nullable: true })
-  fullName: string;
-
-  @Column({ nullable: true })
-  familyName: string;
+  lastName: string;
 
   @Column({ nullable: true })
   firstName: string;

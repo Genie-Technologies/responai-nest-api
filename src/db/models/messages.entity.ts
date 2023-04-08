@@ -9,20 +9,20 @@ import { BaseEntity } from './base.entity';
 @Entity('messages') // <-- Note the lowercase 'm' here
 export class Messages extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column()
   message: string;
 
-  @Column()
-  sender_id: number;
+  @Column('uuid')
+  sender_id: string;
 
-  @Column()
-  receiver_id: number;
+  @Column('uuid')
+  receiver_id: string;
 
   @CreateDateColumn()
   created_date: Date;
 
   @Column()
-  thread_id: number;
+  thread_id: string;
 }

@@ -15,7 +15,7 @@ export class MessagesController {
   }
 
   @Get()
-  async getMessagesForUser(sender_id: number) {
+  async getMessagesForUser(sender_id: string) {
     return await this.messagesService.getMessage(sender_id);
   }
 

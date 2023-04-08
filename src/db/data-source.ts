@@ -1,14 +1,16 @@
+import { DataSource, DataSourceOptions } from 'typeorm';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as path from 'path';
-import { Messages } from 'src/db/models/messages.entity';
-import { Users } from 'src/db/models/users.entity';
+import { Messages } from './models/messages.entity';
+import { Users } from './models/users.entity';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
 class ConfigService {
   constructor(private env: { [k: string]: string | undefined }) {}
 
-  private getValue(key: string, throwOnMissing = true): string {
+  public getValue(key: string, throwOnMissing = true): string {
     const value = this.env[key];
     if (!value && throwOnMissing) {
       throw new Error(`config error - missing env.${key}`);
@@ -33,7 +35,13 @@ class ConfigService {
 
   public getTypeOrmConfig(): TypeOrmModuleOptions {
     // here is the path to the entities folder: src\db\models\messages.entity.ts
-    const migrationsPath = path.join(__dirname, '..', '..', 'migration');
+    const migrationsPath = path.join(
+      __dirname,
+      '..',
+      'db',
+      'migrations',
+      '*{.ts,.js}',
+    );
     const entitiesPath = path.join(
       __dirname,
       '..',
@@ -46,7 +54,6 @@ class ConfigService {
 
     return {
       type: 'postgres',
-
       host: this.getValue('POSTGRES_HOST'),
       port: parseInt(this.getValue('POSTGRES_PORT')),
       username: this.getValue('POSTGRES_USER'),
@@ -55,8 +62,10 @@ class ConfigService {
       entities: [Messages, Users],
       migrationsTableName: 'migration',
       migrations: [path.join(migrationsPath, '*{.ts,.js}')],
-      // ssl: true,
+      ssl: true,
       synchronize: this.isProduction() ? false : true,
+      // seeds: ['src/db/seeding/seeds/**/*{.ts,.js}'],
+      // factories: ['src/db/seeding/factories/**/*{.ts,.js}'],
     };
   }
 }
@@ -68,5 +77,21 @@ const configService = new ConfigService(process.env).ensureValues([
   'POSTGRES_PASSWORD',
   'POSTGRES_DATABASE',
 ]);
+
+export const dataSourceOptions: DataSourceOptions = {
+  type: 'postgres',
+  host: configService.getValue('POSTGRES_HOST'),
+  port: parseInt(configService.getValue('POSTGRES_PORT')),
+  username: configService.getValue('POSTGRES_USER'),
+  password: configService.getValue('POSTGRES_PASSWORD'),
+  database: configService.getValue('POSTGRES_DATABASE'),
+  entities: [Messages, Users],
+  migrationsTableName: 'migration',
+  migrations: ['dist/db/migrations/*{.ts,.js}'],
+  ssl: true,
+  synchronize: true,
+};
+
+export const dataSource = new DataSource(dataSourceOptions);
 
 export { configService };

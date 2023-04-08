@@ -14,14 +14,16 @@ export class MessagesService {
     // Reach out to the database and get the messages
     return await this.messagesRepository.find();
   }
-  async getMessage(id: number) {
-    return await this.messagesRepository.findOne({ where: { sender_id: id }});
+  async getMessage(id: string) {
+    return await this.messagesRepository.findOne({ where: { sender_id: id } });
   }
-  async getMessageByReceiver(id: number) {
-    return await this.messagesRepository.find({ where: { receiver_id: id }});
+  async getMessageByReceiver(id: string) {
+    return await this.messagesRepository.find({ where: { receiver_id: id } });
   }
-  async getMessagesForThread(sender_id: number, receiver_id: number) {
-    return await this.messagesRepository.find({ where: { sender_id, receiver_id }});
+  async getMessagesForThread(sender_id: string, receiver_id: string) {
+    return await this.messagesRepository.find({
+      where: { sender_id, receiver_id },
+    });
   }
   async saveMessage(message: unknown) {
     return await this.messagesRepository.save(message);
