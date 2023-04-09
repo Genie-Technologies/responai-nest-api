@@ -1,32 +1,25 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { BaseEntity } from './base.entity';
 
 @Entity('messages') // <-- Note the lowercase 'm' here
-export class Messages extends BaseEntity {
+export class Messages {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column()
   message: string;
 
-  @Column()
-  sender_id: number;
+  @Column({ nullable: true })
+  senderId: string;
 
-  @Column()
-  receiver_id: number;
+  @Column({ nullable: true })
+  recieverId: string;
 
-  @Column()
-  sender_avatar: string;
+  @Column({ type: 'uuid', nullable: true })
+  threadId: string;
 
-  @Column()
-  receiver_avatar: string;
+  @Column({ nullable: true })
+  createdAt: Date;
 
-  @Column()
-  sender_name: string;
-
-  @Column()
-  receiver_name: string;
-
-  @Column()
-  thread_id: string;
+  @Column({ nullable: true })
+  updatedAt: Date;
 }

@@ -9,12 +9,6 @@ export class Threads {
   @Column()
   userId: string;
 
-  @Column('text', { array: true, nullable: true })
-  participants: string[];
-
-  @Column('text', { array: true, nullable: true })
-  messages: string[];
-
   @Column()
   createdAt: Date;
 

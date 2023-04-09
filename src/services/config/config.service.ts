@@ -1,6 +1,7 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as path from 'path';
 import { Messages } from 'src/db/models/messages.entity';
+import { Participants } from 'src/db/models/participants.entity';
 import { Threads } from 'src/db/models/threads.entity';
 import { Users } from 'src/db/models/users.entity';
 
@@ -53,7 +54,7 @@ class ConfigService {
       username: this.getValue('POSTGRES_USER'),
       password: this.getValue('POSTGRES_PASSWORD'),
       database: this.getValue('POSTGRES_DATABASE'),
-      entities: [Messages, Users, Threads],
+      entities: [Messages, Users, Threads, Participants],
       migrationsTableName: 'migration',
       migrations: [path.join(migrationsPath, '*{.ts,.js}')],
       ssl: true,

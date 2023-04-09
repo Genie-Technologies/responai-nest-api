@@ -17,10 +17,7 @@ export class Users extends BaseEntity {
   authOId: string;
 
   @Column({ nullable: true })
-  fullName: string;
-
-  @Column({ nullable: true })
-  familyName: string;
+  lastName: string;
 
   @Column({ nullable: true })
   firstName: string;
@@ -42,7 +39,4 @@ export class Users extends BaseEntity {
 
   @Column({ nullable: true })
   locale: string;
-
-  @Column('text', { nullable: true })
-  friends: string[];
 }

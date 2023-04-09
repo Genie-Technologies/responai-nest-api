@@ -22,7 +22,6 @@ export class UsersService {
   constructor(
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
-    private messageService: MessagesService,
   ) {}
 
   USER_NOT_FOUND = 'User not found';
@@ -82,6 +81,53 @@ export class UsersService {
       console.error('Error while creating user: ', error);
       throw new Error(
         'There was an error creating the user, please try again later.',
+      );
+    }
+  }
+
+  async searchUsers(query: string) {
+    // Search the users table for users with a name that matches the query, first or last name or both or email address
+    try {
+      const [firstName, lastName, email] = query.split(' ');
+
+      const whereClause = [];
+      const params: {
+        firstName?: string;
+        lastName?: string;
+        email?: string;
+      } = {};
+
+      if (firstName) {
+        whereClause.push('firstName ILIKE :firstName');
+        params.firstName = `%${firstName}%`;
+      }
+
+      if (lastName) {
+        whereClause.push('lastName ILIKE :lastName');
+        params.lastName = `%${lastName}%`;
+      }
+
+      if (email) {
+        whereClause.push('email ILIKE :email');
+        params.email = `%${email}%`;
+      }
+
+      const users = await this.usersRepository.find({
+        where: whereClause,
+        order: {
+          lastName: 'ASC',
+          firstName: 'ASC',
+          email: 'ASC',
+        },
+        take: 10, // Limit to 10 results
+        ...params,
+      });
+
+      return users;
+    } catch (error) {
+      console.error('Error while searching users: ', error);
+      throw new Error(
+        'There was an error searching for users, please try again later.',
       );
     }
   }

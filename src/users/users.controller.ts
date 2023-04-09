@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { UserBody, UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -27,5 +35,10 @@ export class UsersController {
   async createUser(@Req() req: Request) {
     const userBody: UserBody = req.body as any;
     return await this.usersService.createUser(userBody);
+  }
+
+  @Get('search/:query')
+  async searchUsers(@Query('query') query: string) {
+    return await this.usersService.searchUsers(query);
   }
 }
