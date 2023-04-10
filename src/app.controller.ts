@@ -11,7 +11,6 @@ export class AppController {
 
   @Get()
   getHello(): string {
-    this.userService.getUser('kawjdnkwjd');
     return this.appService.getHello();
   }
 }

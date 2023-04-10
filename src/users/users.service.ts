@@ -2,20 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { Users } from 'src/db/models/users.entity';
-import { MessagesService } from 'src/messages/messages.service';
+import { isUUID } from 'src/utils';
 import { Repository } from 'typeorm';
-
-export interface UserBody {
-  id: string;
-  email: string;
-  fullName: string;
-  firstName: string;
-  familyName: string;
-  picture: string;
-  joined: string;
-  locale: string;
-  authOId: string;
-}
 
 @Injectable()
 export class UsersService {
@@ -27,12 +15,6 @@ export class UsersService {
   USER_NOT_FOUND = 'User not found';
   INVALID_UUID = 'Invalid UUID';
 
-  isUUID(uuid: string): boolean {
-    const uuidPattern =
-      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/i;
-    return uuidPattern.test(uuid);
-  }
-
   healthCheck() {
     return 'Users service is up and running';
   }
@@ -43,7 +25,7 @@ export class UsersService {
 
       let foundUser: Users;
 
-      if (!this.isUUID(id)) {
+      if (!isUUID(id)) {
         console.log('id is not a UUID, trying to find by authOId: ', id);
         foundUser = await this.usersRepository.findOne({
           where: { authOId: id },
@@ -69,7 +51,7 @@ export class UsersService {
     }
   }
 
-  async createUser(user?: UserBody) {
+  async createUser(user?: Users) {
     try {
       console.log('Creating user: ', user);
       return await this.usersRepository.save({

@@ -110,10 +110,7 @@ export class ThreadsService {
 
     const messages = await this.messagesRepository.find({
       where: { threadId },
-    });
-
-    messages.sort((a, b) => {
-      return a.createdAt.getTime() - b.createdAt.getTime();
+      order: { createdAt: 'ASC' },
     });
 
     return messages;

@@ -7,8 +7,9 @@ import {
   UseGuards,
   Query,
 } from '@nestjs/common';
-import { UserBody, UsersService } from './users.service';
+import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
+import { Users } from 'src/db/models/users.entity';
 
 @Controller('users')
 export class UsersController {
@@ -33,7 +34,7 @@ export class UsersController {
 
   @Post('create')
   async createUser(@Req() req: Request) {
-    const userBody: UserBody = req.body as any;
+    const userBody: Users = req.body as any;
     return await this.usersService.createUser(userBody);
   }
 
