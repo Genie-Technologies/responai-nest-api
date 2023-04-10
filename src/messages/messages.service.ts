@@ -9,9 +9,12 @@ export class MessagesService {
     @InjectRepository(Messages)
     private readonly messagesRepository: Repository<Messages>,
   ) {}
-  // Get the messages from the psql database
+
   async getMessages() {
-    // Reach out to the database and get the messages
     return await this.messagesRepository.find();
+  }
+
+  async saveMessage(message: Messages) {
+    return await this.messagesRepository.save(message);
   }
 }

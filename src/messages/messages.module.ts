@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MessagesService } from './messages.service';
 import { MessagesController } from './messages.controller';
 import { Messages } from '../db/models/messages.entity';
+import { Threads } from 'src/db/models/threads.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Messages])],
