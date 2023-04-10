@@ -17,7 +17,7 @@ export class ThreadsService {
     private readonly participantsRepository: Repository<Participants>,
   ) {}
 
-  async getThreads(userId: string) {
+  async getThreadsByUserId(userId: string) {
     console.log(
       'Reaching out to the API to get threads for this user: ',
       userId,

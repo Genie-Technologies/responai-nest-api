@@ -13,9 +13,9 @@ export class ThreadsController {
 
   // @UseGuards(AuthGuard('jwt'))
   @Get('user/:userId')
-  async getThreads(@Param('userId') userId: string) {
+  async getThreadsByUserId(@Param('userId') userId: string) {
     console.log('Controller: --> getThreads: ', userId, ' <--');
-    return await this.threadService.getThreads(userId);
+    return await this.threadService.getThreadsByUserId(userId);
   }
 
   @Get(':threadId')
