@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Req } from '@nestjs/common';
+import { Controller, Get, Post, Req, Param, UseGuards } from '@nestjs/common';
 import { MessagesService } from './messages.service';
+import { Messages } from 'src/db/models/messages.entity';
 
 export type MessageBody = {
   message: string;
@@ -14,14 +15,29 @@ export class MessagesController {
     return await this.messagesService.getMessages();
   }
 
-  @Get()
-  async getMessagesForUser(sender_id: string) {
-    return await this.messagesService.getMessage(sender_id);
+  @Get(':id')
+  async getMessage(@Param('id') id: string) {
+    console.log('------> id: ', id);
+    try {
+      return await this.messagesService.getMessage(id);
+    } catch (error) {
+      // Return a 400 if the message is not found or the id is not UUID
+      return { error: error.message, status: 400 };
+    }
+  }
+
+  @Get('sender/:sender_id')
+  async getMessagesForUserThread(sender_id: string) {
+    try {
+      return await this.messagesService.getMessagesForUserThread(sender_id);
+    } catch (error) {
+      return { error: error.message, status: 400 };
+    }
   }
 
   @Post('create')
-  async createUser(@Req() req) {
-    const userBody: MessageBody = req.body as any;
-    return await this.messagesService.saveMessage(userBody);
+  async createMessage(req) {
+    const messageBody: Messages = req.body as any;
+    return await this.messagesService.saveMessage(messageBody);
   }
 }
