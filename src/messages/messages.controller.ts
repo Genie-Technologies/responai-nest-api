@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Req, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Param } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { Messages } from 'src/db/models/messages.entity';
 

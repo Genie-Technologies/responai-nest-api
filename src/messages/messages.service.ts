@@ -17,31 +17,31 @@ export class MessagesService {
   async getMessage(id: string) {
     return await this.messagesRepository.findOne({ where: { id } });
   }
-  async getMessageBySender(sender_id: string) {
+  async getMessageBySender(senderId: string) {
     return await this.messagesRepository.findOne({
-      where: { sender_id },
-      order: { created_date: 'ASC' },
+      where: { senderId },
+      order: { createdAt: 'ASC' },
     });
   }
-  async getMessagesBySender(sender_id: string) {
+  async getMessagesBySender(senderId: string) {
     return await this.messagesRepository.find({
-      where: { sender_id },
-      order: { created_date: 'ASC' },
+      where: { senderId },
+      order: { createdAt: 'ASC' },
     });
   }
-  async getMessageByReceiver(receiver_id: string) {
-    return await this.messagesRepository.find({ where: { receiver_id } });
+  async getMessageByReceiver(recieverId: string) {
+    return await this.messagesRepository.find({ where: { recieverId } });
   }
   async getMessagesForUserThread(user_id: string) {
     const allMessagesForUser = await this.getMessagesBySender(user_id);
     console.log('allMessagesForUser: ', allMessagesForUser);
-    const other_user_id = allMessagesForUser[0].receiver_id;
+    const other_user_id = allMessagesForUser[0].recieverId;
     console.log('other_user_id: ', other_user_id);
     return await this.getAllMessagesBetweenUsers(user_id, other_user_id);
   }
-  async getAllMessagesBetweenUsers(sender_id: string, receiver_id: string) {
+  async getAllMessagesBetweenUsers(senderId: string, recieverId: string) {
     return await this.messagesRepository.find({
-      where: [{ sender_id }, { receiver_id }],
+      where: [{ senderId }, { recieverId }],
     });
   }
   async saveMessage(message: Messages) {
@@ -57,7 +57,7 @@ export class MessagesService {
 
     const obj = {};
     let exists = false;
-    const allParticipants = await this.messagesRepository.find({
+    const allParticipants = await this.participantsRepository.find({
       // where: userIds.map((userId) => ({ user_id: userId })),
     });
 
@@ -66,8 +66,8 @@ export class MessagesService {
     }
 
     allParticipants.map((participant) => {
-      obj[participant.thread_id] = [
-        ...(obj[participant.thread_id] || []),
+      obj[participant.threadId] = [
+        ...(obj[participant.threadId] || []),
         // participant.user_id,
       ];
     });
