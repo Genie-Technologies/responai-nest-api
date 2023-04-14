@@ -47,9 +47,4 @@ const dataInit = async (AppDataSource: DataSource) => {
       threadId: '100001',
     }),
   );
-
-  // await AppDataSource.getRepository(Message).findOneBy({user_id: user.id,
-  //     other_user_id: user2.id,
-  //     message_body: "I'm not fuckin leavin" }
-  // )
 };
