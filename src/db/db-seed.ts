@@ -41,10 +41,10 @@ const dataInit = async (AppDataSource: DataSource) => {
   console.log('USER_ID', user, 'USER_ID2', user2);
   await AppDataSource.manager.save(
     AppDataSource.manager.create(Messages, {
-      sender_id: user.id,
-      receiver_id: user2.id,
+      senderId: user.id,
+      receiverId: user2.id,
       message: "I'm not fuckin leavin",
-      thread_id: '100001',
+      threadId: '100001',
     }),
   );
 

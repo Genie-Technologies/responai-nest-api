@@ -61,7 +61,7 @@ export class WebsocketsGateway
       threadId: payload.threadId,
       message: payload.message,
       createdAt: new Date(payload.timestamp),
-      recieverId: payload.to[0].userId,
+      receiverId: payload.to[0].userId,
       senderId: payload.to[0].id,
       updatedAt: new Date(payload.timestamp),
       id: randomUUID(),

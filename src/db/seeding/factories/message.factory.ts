@@ -8,9 +8,9 @@ define(Messages, () => {
   const messageText = faker.lorem.words(8);
 
   message.message = messageText;
-  message.sender_id = faker.datatype.uuid();
-  message.receiver_id = faker.datatype.uuid();
-  message.thread_id = `${Math.floor(Math.random() * 15)}`;
+  message.senderId = faker.datatype.uuid();
+  message.receiverId = faker.datatype.uuid();
+  message.threadId = `${Math.floor(Math.random() * 15)}`;
 
   return message;
 });

@@ -9,8 +9,8 @@ export default class InitialDatabaseSeed implements Seeder {
     const users = await factory(Users)().createMany(15);
     await factory(Messages)()
       .map(async (post) => {
-        post.sender_id = users[Math.floor(Math.random() * users.length)].id;
-        post.receiver_id = users[Math.floor(Math.random() * users.length)].id;
+        post.senderId = users[Math.floor(Math.random() * users.length)].id;
+        post.receiverId = users[Math.floor(Math.random() * users.length)].id;
         return post;
       })
       .createMany(100);
