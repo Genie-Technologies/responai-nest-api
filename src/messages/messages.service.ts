@@ -12,45 +12,101 @@ export class MessagesService {
     @InjectRepository(Participants)
     private readonly particpantsRepository: Repository<Participants>,
   ) {}
+
   // Get the messages from the psql database
   async getMessages() {
-    // Reach out to the database and get the messages
-    return await this.messagesRepository.find();
-  }
-  async getMessage(id: string) {
-    return await this.messagesRepository.findOne({ where: { id } });
-  }
-  async getMessageBySender(senderId: string) {
-    return await this.messagesRepository.findOne({
-      where: { senderId },
-      order: { createdAt: 'ASC' },
-    });
-  }
-  async getMessagesBySender(senderId: string) {
-    return await this.messagesRepository.find({
-      where: { senderId },
-      order: { createdAt: 'ASC' },
-    });
-  }
-  async getMessageByReceiver(receiverId: string) {
-    return await this.messagesRepository.find({ where: { receiverId } });
-  }
-  async getMessagesForUserThread(user_id: string) {
-    const allMessagesForUser = await this.getMessagesBySender(user_id);
-    console.log('allMessagesForUser: ', allMessagesForUser);
-    const other_user_id = allMessagesForUser[0].receiverId;
-    console.log('other_user_id: ', other_user_id);
-    return await this.getAllMessagesBetweenUsers(user_id, other_user_id);
-  }
-  async getAllMessagesBetweenUsers(senderId: string, receiverId: string) {
-    return await this.messagesRepository.find({
-      where: [{ senderId }, { receiverId }],
-    });
-  }
-  async saveMessage(message: Messages) {
-    return await this.messagesRepository.save(message);
+    console.log('Getting all messages... ');
+
+    try {
+      // Reach out to the database and get the messages
+      return await this.messagesRepository.find();
+    } catch (error) {
+      console.log('Error getting all messages: ', error);
+      throw error;
+    }
   }
 
+  async getMessage(id: string) {
+    console.log('Getting message: ', id);
+
+    try {
+      return await this.messagesRepository.findOne({ where: { id } });
+    } catch (error) {
+      console.log('Error getting message: ', id, '\n', error);
+    }
+  }
+
+  async getMessageBySender(senderId: string) {
+    console.log('Getting message by sender: ', senderId);
+
+    try {
+      return await this.messagesRepository.findOne({
+        where: { senderId },
+        order: { createdAt: 'ASC' },
+      });
+    } catch (error) {
+      console.log('Error getting message by sender: ', senderId, '\n', error);
+    }
+  }
+
+  async getMessagesBySender(senderId: string) {
+    console.log('Getting all messages by sender: ', senderId);
+
+    try {
+      return await this.messagesRepository.find({
+        where: { senderId },
+        order: { createdAt: 'ASC' },
+      });
+    } catch (error) {
+      console.log(
+        'Error getting all messages by sender: ',
+        senderId,
+        '\n',
+        error,
+      );
+    }
+  }
+
+  async getMessageByReceiver(receiverId: string) {
+    console.log('Getting message by receiver: ', receiverId);
+
+    try {
+      return await this.messagesRepository.findOne({
+        where: { receiverId },
+        order: { createdAt: 'ASC' },
+      });
+    } catch (error) {
+      console.log(
+        'Error getting message by receiver: ',
+        receiverId,
+        '\n',
+        error,
+      );
+    }
+  }
+
+  async getMessagesForUserThread(threadId: string) {
+    console.log('Getting messages for thread: ', threadId);
+    try {
+      return await this.messagesRepository.find({
+        where: [{ threadId }],
+      });
+    } catch (error) {
+      console.log('Error getting messages for thread: ', threadId, '\n', error);
+    }
+  }
+
+  async saveMessage(message: Messages) {
+    console.log('Saving message: ', message);
+
+    try {
+      return await this.messagesRepository.save(message);
+    } catch (error) {
+      console.log('Error saving message: ', message, '\n', error);
+    }
+  }
+
+  // TODO: Dunno if we need this but I'm keeping it her for now incase we need it later.
   async checkIfThreadExists(userIds: string[]) {
     // Check if the thread exists
     // If the thread exists, return the thread id
