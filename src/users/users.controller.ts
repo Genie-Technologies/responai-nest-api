@@ -17,8 +17,8 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  healthCheck() {
-    return this.usersService.healthCheck();
+  getUsers() {
+    return this.usersService.getUsers();
   }
 
   // @UseGuards(AuthGuard('jwt'))

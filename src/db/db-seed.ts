@@ -2,6 +2,7 @@ import { DataSource } from 'typeorm';
 import { dataSource } from './data-source';
 import { Users } from './models/users.entity';
 import { Messages } from './models/messages.entity';
+import { randomUUID } from 'crypto';
 
 dataSource.initialize().then(async () => {
   await dataInit(dataSource);
@@ -44,7 +45,7 @@ const dataInit = async (AppDataSource: DataSource) => {
       senderId: user.id,
       receiverId: user2.id,
       message: "I'm not fuckin leavin",
-      threadId: '100001',
+      threadId: randomUUID(),
     }),
   );
 };

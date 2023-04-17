@@ -50,8 +50,10 @@ export const dataSourceOptions: DataSourceOptions = {
   entities: [Messages, Users],
   migrationsTableName: 'migration',
   migrations: ['dist/db/migrations/*{.ts,.js}'],
-  ssl: true,
   synchronize: true,
+
+  // You have to comment this out for connecting to local db
+  // ssl: true,
 };
 
 export const dataSource = new DataSource(dataSourceOptions);
