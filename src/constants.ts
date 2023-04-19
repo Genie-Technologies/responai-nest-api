@@ -1,11 +1,18 @@
 export interface WebhookIncomingMessagePayload {
   message: string;
-  threadId: string;
-  lastMessage: string;
+  sender_id: string;
+  receiver_id: string;
+  thread_id: string;
   timestamp: string;
-  to: {
-    id: string;
-    threadId: string;
-    userId: string;
-  }[];
+}
+
+export interface NewThreadRequestPayload {
+  id: string;
+  userId: string;
+  createdAt: string;
+  participants: string[];
+  messages: any[];
+  isActive: boolean;
+  lastMessage: string | null;
+  threadName: string;
 }

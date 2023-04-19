@@ -7,12 +7,12 @@ import {
   UseGuards,
   Query,
   Request,
-} from '@nestjs/common';
-import { UsersService } from './users.service';
-import { AuthGuard } from '@nestjs/passport';
-import { Users } from 'src/db/models/users.entity';
+} from "@nestjs/common";
+import { UsersService } from "./users.service";
+import { AuthGuard } from "@nestjs/passport";
+import { Users } from "src/db/models/users.entity";
 
-@Controller('users')
+@Controller("users")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -21,10 +21,24 @@ export class UsersController {
     return this.usersService.getUsers();
   }
 
+  @Get("search")
+  async searchUsers(
+    @Query("email") email: string,
+    @Query("name") name: string,
+    @Query("phone") phone: string
+  ) {
+    console.log("------------> : ", email, name, phone);
+    return await this.usersService.searchUsers({
+      email,
+      name,
+      phone,
+    });
+  }
+
   // @UseGuards(AuthGuard('jwt'))
-  @Get(':id')
-  async getUser(@Param('id') id: string) {
-    console.log('------> id: ', id);
+  @Get(":id")
+  async getUser(@Param("id") id: string) {
+    console.log("------> id: ", id);
     try {
       return await this.usersService.getUser(id);
     } catch (error) {
@@ -33,14 +47,9 @@ export class UsersController {
     }
   }
 
-  @Post('create')
+  @Post("create")
   async createUser(@Req() req: Request) {
     const userBody: Users = req.body as any;
     return await this.usersService.createUser(userBody);
-  }
-
-  @Get('search/:query')
-  async searchUsers(@Query('query') query: string) {
-    return await this.usersService.searchUsers(query);
   }
 }

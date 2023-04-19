@@ -5,17 +5,17 @@ import {
   WebSocketServer,
   OnGatewayConnection,
   OnGatewayDisconnect,
-} from '@nestjs/websockets';
-import { UUID, randomUUID } from 'crypto';
-import { Server, Socket } from 'socket.io';
-import { WebhookIncomingMessagePayload } from 'src/constants';
-import { MessagesService } from 'src/messages/messages.service';
-import { ThreadsService } from 'src/threads/threads.service';
+} from "@nestjs/websockets";
+import { UUID, randomUUID } from "crypto";
+import { Server, Socket } from "socket.io";
+import { WebhookIncomingMessagePayload } from "src/constants";
+import { MessagesService } from "src/messages/messages.service";
+import { ThreadsService } from "src/threads/threads.service";
 
 @WebSocketGateway(3002, {
   cors: {
-    origin: '*',
-    methods: ['GET', 'POST'],
+    origin: "*",
+    methods: ["GET", "POST"],
   },
 })
 export class WebsocketsGateway
@@ -23,18 +23,18 @@ export class WebsocketsGateway
 {
   constructor(
     private readonly threadsService: ThreadsService,
-    private readonly messagesService: MessagesService,
+    private readonly messagesService: MessagesService
   ) {}
 
   @WebSocketServer() server: Server;
 
   afterInit(server: Server) {
-    console.log('----> Websockets initialized');
+    console.log("----> Websockets initialized");
   }
 
   async handleConnection(client: Socket, ...args: any[]) {
     const token = this.getTokenFromClient(client);
-    console.log('token: ', token);
+    console.log("token: ", token);
     console.log(`----> Client connected: `, client.id);
   }
 
@@ -42,61 +42,79 @@ export class WebsocketsGateway
     console.log(`Client disconnected: ${client.id}`);
   }
 
-  @SubscribeMessage('incoming_message')
+  @SubscribeMessage("incoming_message")
   async handleMessage(
     client: Socket,
-    payload: WebhookIncomingMessagePayload,
+    payload: WebhookIncomingMessagePayload
   ): Promise<void> {
-    console.log('Message received: ', payload, 'from client: ', client.id);
+    console.log("Message received: ", payload, "from client: ", client.id);
     // TODO: Authenticate the user
 
-    console.log('Saving last message to thread: ', payload.threadId);
+    console.log("Saving last message to thread: ", payload.thread_id);
     await this.threadsService.saveLastMessageToThread(
-      payload.threadId,
-      payload.message,
+      payload.thread_id,
+      payload.message
     );
 
-    console.log('Saving message to database');
+    console.log("Saving message to database");
     const message = {
-      threadId: payload.threadId,
+      threadId: payload.thread_id,
       message: payload.message,
       createdAt: new Date(payload.timestamp),
-      receiverId: payload.to[0].userId,
-      senderId: payload.to[0].id,
       updatedAt: new Date(payload.timestamp),
+      senderId: payload.sender_id,
+      receiverId: payload.receiver_id,
       id: randomUUID(),
     };
-    console.log('message: ', message);
+    console.log("message: ", message);
     await this.messagesService.saveMessage(message);
 
     // Send the message to the room
-    console.log('Sending message to room: ', payload.threadId);
-    this.server.to(payload.threadId).emit('received_message', payload);
-    // this.server.emit('received_message', payload);
-  }
-
-  @SubscribeMessage('join')
-  handleJoin(client: Socket, payload: any): void {
-    console.log('Join received: ', payload, 'from client: ', client.id);
-    client.join(payload.room);
+    console.log("Sending message to room: ", payload.thread_id);
     this.server
-      .to(payload.room)
-      .emit('received_message', { message: 'New user joined' });
+      .to(payload.thread_id)
+      .emit(`received_message_${payload.receiver_id}`, payload);
+    // This is if the user does not have a thread with the sender yet.
+
+    console.log("Sending message to user: ", payload);
+    this.server
+      .to(payload.receiver_id)
+      .emit(`received_message_${payload.receiver_id}`, payload);
   }
 
-  @SubscribeMessage('leave')
+  @SubscribeMessage("join")
+  handleJoin(client: Socket, payload: any): void {
+    console.log("Join received: ", payload, "from client: ", client.id);
+    client.join(payload.room);
+    this.server.to(payload.room).emit("received_message", {
+      message: `User ${client.id} joined ${payload.room}`,
+    });
+  }
+
+  @SubscribeMessage("join_home")
+  handleJoinHome(client: Socket, payload: any): void {
+    console.log("Join home received: ", payload, "from client: ", client.id);
+    client.join(payload.user_id);
+    this.server
+      .to(payload.user_id)
+      .emit(`received_message_${payload.user_id}`, {
+        message: `User ${client.id} joined ${payload.user_id}`,
+      });
+  }
+
+  @SubscribeMessage("leave")
   handleLeave(client: Socket, payload: any): void {
-    console.log('Leave received: ', payload, 'from client: ', client.id);
+    console.log("Leave received: ", payload, "from client: ", client.id);
     client.leave(payload.room);
     this.server
       .to(payload.room)
-      .emit('received_message', { message: 'User left' });
+      .emit("received_message", { message: "User left" });
   }
 
   getTokenFromClient(client: Socket): string {
     // The token is in the cookies of the client
     const cookies = client.handshake.headers.cookie;
-    const token = cookies.split(';')[0];
+    const token = cookies.split(";")[0];
     return token;
   }
 }

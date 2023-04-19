@@ -5,12 +5,12 @@ import {
   Index,
   PrimaryColumn,
   PrimaryGeneratedColumn,
-} from 'typeorm';
+} from "typeorm";
 
-@Entity('users')
+@Entity("users")
 export class Users extends BaseEntity {
   @PrimaryColumn({ nullable: false })
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ nullable: true })
@@ -39,4 +39,7 @@ export class Users extends BaseEntity {
 
   @Column({ nullable: true })
   locale: string;
+
+  @Column({ nullable: true })
+  phone: string;
 }

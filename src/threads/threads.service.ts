@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { randomUUID } from 'crypto';
-import { Messages } from 'src/db/models/messages.entity';
-import { Participants } from 'src/db/models/participants.entity';
-import { Threads } from 'src/db/models/threads.entity';
-import { Repository } from 'typeorm';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { randomUUID } from "crypto";
+import { NewThreadRequestPayload } from "src/constants";
+import { Messages } from "src/db/models/messages.entity";
+import { Participants } from "src/db/models/participants.entity";
+import { Threads } from "src/db/models/threads.entity";
+import { Repository } from "typeorm";
 
 @Injectable()
 export class ThreadsService {
@@ -14,29 +15,49 @@ export class ThreadsService {
     @InjectRepository(Threads)
     private readonly threadsRepository: Repository<Threads>,
     @InjectRepository(Participants)
-    private readonly participantsRepository: Repository<Participants>,
+    private readonly participantsRepository: Repository<Participants>
   ) {}
 
   async getThreadsByUserId(userId: string) {
     console.log(
-      'Reaching out to the API to get threads for this user: ',
-      userId,
+      "Reaching out to the API to get threads for this user: ",
+      userId
     );
     const threads = await this.threadsRepository.findAndCount({
       where: { userId },
     });
 
+    console.log("-------> Threads: ", threads);
+
     // Get the participants for each thread and add them to the thread object
     const threadsWithParticipants = await Promise.all(
       threads[0].map(async (thread) => {
-        const participants = await this.participantsRepository.find({
+        const participants = await this.participantsRepository
+          .createQueryBuilder("participants")
+          .select([
+            "users.id as userId",
+            "users.firstName as firstName",
+            "users.lastName as lastName",
+            "users.email as email",
+          ])
+          .innerJoin("users", "users", 'participants."userId"::uuid = users.id')
+          .getRawMany();
+
+        const messages = await this.messagesRepository.find({
           where: { threadId: thread.id },
         });
 
-        return { ...thread, participants };
-      }),
+        console.log("Participants: ", participants);
+
+        return { ...thread, participants, messages };
+      })
     );
 
+    console.log(
+      "Threads beign returned for this user: ",
+      userId,
+      threadsWithParticipants
+    );
     return threadsWithParticipants;
   }
 
@@ -54,27 +75,31 @@ export class ThreadsService {
     await this.threadsRepository.save(thread);
   }
 
-  async createThread(threadAndParticipants: {
-    threads: Threads;
-    participants: string[];
-  }) {
-    const { threads: newThread, participants } = threadAndParticipants;
+  async createThread(newThread: NewThreadRequestPayload) {
+    const { participants } = newThread;
     const newUuid = randomUUID().toString();
-    console.log('New UUID: ', newUuid);
-    console.log('New Thread: ', newThread);
+    console.log("New UUID: ", newUuid);
+    console.log("New Thread: ", newThread);
 
     const threadExists = await this.threadExistsBetweenUsers(
       newThread.userId,
-      participants,
+      participants
     );
 
-    console.log('Thread Exists: ', threadExists);
+    console.log("Thread Exists: ", threadExists);
 
     if (threadExists) {
       return await this.threadsRepository.findOne({
         where: { userId: newThread.userId },
       });
     }
+
+    console.log(
+      "Creating new thread: ",
+      newThread,
+      " with participants: ",
+      participants
+    );
 
     const thread = this.threadsRepository.create({
       id: newUuid,
@@ -95,7 +120,7 @@ export class ThreadsService {
     await this.participantsRepository.save(participantsToSave);
     await this.threadsRepository.save(thread);
 
-    console.log('New thread: ', thread);
+    console.log("New thread: ", thread);
     return { ...thread, participants };
   }
 
@@ -110,7 +135,7 @@ export class ThreadsService {
 
     const messages = await this.messagesRepository.find({
       where: { threadId },
-      order: { createdAt: 'ASC' },
+      order: { createdAt: "ASC" },
     });
 
     return messages;
@@ -118,20 +143,20 @@ export class ThreadsService {
 
   async threadExistsBetweenUsers(
     currentUser: string,
-    otherUser: string | string[],
+    otherUser: string | string[]
   ): Promise<boolean> {
     console.log(
-      'Checking if thread exists between users: ',
+      "Checking if thread exists between users: ",
       currentUser,
-      otherUser,
+      otherUser
     );
     const otherUsers = Array.isArray(otherUser) ? otherUser : [otherUser];
 
-    console.log('Retrieve all thread IDs that belong to the current user');
+    console.log("Retrieve all thread IDs that belong to the current user");
     let threadIds = await this.participantsRepository
-      .createQueryBuilder('participants')
-      .select('participants.threadId')
-      .where('participants.userId = :currentUser', { currentUser })
+      .createQueryBuilder("participants")
+      .select("participants.threadId")
+      .where("participants.userId = :currentUser", { currentUser })
       .getRawMany();
 
     threadIds = threadIds.map((thread) => thread.threadId);
@@ -141,17 +166,17 @@ export class ThreadsService {
     }
 
     console.log(
-      'Retrieve all user IDs that belong to the threads associated with the current user',
-      threadIds,
+      "Retrieve all user IDs that belong to the threads associated with the current user",
+      threadIds
     );
     const userIds = await this.participantsRepository
-      .createQueryBuilder('participants')
-      .select('participants.userId')
-      .where('participants.threadId IN (:...threadIds)', { threadIds })
+      .createQueryBuilder("participants")
+      .select("participants.userId")
+      .where("participants.threadId IN (:...threadIds)", { threadIds })
       .getRawMany();
 
     console.log(
-      'Check if a thread exists between the current user and the other user(s)',
+      "Check if a thread exists between the current user and the other user(s)"
     );
     const exists = userIds.every((user) => {
       return user.userId === currentUser || otherUsers.includes(user.userId);
