@@ -12,7 +12,7 @@ export class Messages {
   senderId: string;
 
   @Column({ nullable: true })
-  recieverId: string;
+  receiverId: string;
 
   @Column({ type: 'uuid', nullable: true })
   threadId: string;

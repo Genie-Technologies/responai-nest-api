@@ -15,8 +15,14 @@ export class UsersService {
   USER_NOT_FOUND = 'User not found';
   INVALID_UUID = 'Invalid UUID';
 
-  healthCheck() {
-    return 'Users service is up and running';
+  async getUsers() {
+    try {
+      console.log('Getting all users... ');
+      return await this.usersRepository.find();
+    } catch (error) {
+      console.log('Error getting all users: ', error);
+      throw error;
+    }
   }
 
   async getUser(id: string): Promise<Users> {

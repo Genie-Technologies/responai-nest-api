@@ -1,6 +1,6 @@
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { configService } from './services/config/config.service';
+import { dataSourceOptions } from './db/data-source';
 import { MessagesModule } from './messages/messages.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -13,7 +13,7 @@ import { ThreadsModule } from './threads/threads.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot(configService.getTypeOrmConfig()),
+    TypeOrmModule.forRoot(dataSourceOptions),
     MessagesModule,
     WebsocketsModule,
     UsersModule,
