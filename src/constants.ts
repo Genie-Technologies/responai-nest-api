@@ -15,4 +15,5 @@ export interface NewThreadRequestPayload {
   isActive: boolean;
   lastMessage: string | null;
   threadName: string;
+  threadLinkId: string;
 }

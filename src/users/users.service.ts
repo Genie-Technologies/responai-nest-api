@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { randomUUID } from "crypto";
 import { Users } from "src/db/models/users.entity";
-import { isUUID } from "src/utils";
+import { isEmail, isUUID } from "src/utils";
 import { Repository } from "typeorm";
 
 @Injectable()
@@ -25,20 +25,25 @@ export class UsersService {
     }
   }
 
-  async getUser(id: string): Promise<Users> {
+  async getUser(idOrEmail: string): Promise<Users> {
     try {
-      console.log("Finding user by this id: ", id);
+      console.log("Finding user by this id: ", idOrEmail);
 
       let foundUser: Users;
 
-      if (!isUUID(id)) {
-        console.log("id is not a UUID, trying to find by authOId: ", id);
+      if (!isUUID(idOrEmail) && !isEmail(idOrEmail)) {
+        console.log("id is not a UUID, trying to find by authOId: ", idOrEmail);
         foundUser = await this.usersRepository.findOne({
-          where: { authOId: id },
+          where: { authOId: idOrEmail },
+        });
+      } else if (isEmail(idOrEmail)) {
+        console.log("id is an email, trying to find by email: ", idOrEmail);
+        foundUser = await this.usersRepository.findOne({
+          where: { email: idOrEmail },
         });
       } else {
         foundUser = await this.usersRepository.findOne({
-          where: { id },
+          where: { id: idOrEmail },
         });
       }
 

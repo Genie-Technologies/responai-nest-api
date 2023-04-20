@@ -29,29 +29,8 @@ export class ThreadsService {
 
     console.log("-------> Threads: ", threads);
 
-    // Get the participants for each thread and add them to the thread object
-    const threadsWithParticipants = await Promise.all(
-      threads[0].map(async (thread) => {
-        const participants = await this.participantsRepository
-          .createQueryBuilder("participants")
-          .select([
-            "users.id as userId",
-            "users.firstName as firstName",
-            "users.lastName as lastName",
-            "users.email as email",
-          ])
-          .innerJoin("users", "users", 'participants."userId"::uuid = users.id')
-          .getRawMany();
-
-        const messages = await this.messagesRepository.find({
-          where: { threadId: thread.id },
-        });
-
-        console.log("Participants: ", participants);
-
-        return { ...thread, participants, messages };
-      })
-    );
+    const threadsWithParticipants =
+      await this.getThreadsWithParticipantsAndMessages(threads);
 
     console.log(
       "Threads beign returned for this user: ",
@@ -78,8 +57,7 @@ export class ThreadsService {
   async createThread(newThread: NewThreadRequestPayload) {
     const { participants } = newThread;
     const newUuid = randomUUID().toString();
-    console.log("New UUID: ", newUuid);
-    console.log("New Thread: ", newThread);
+    const threadLinkId = randomUUID().toString();
 
     const threadExists = await this.threadExistsBetweenUsers(
       newThread.userId,
@@ -108,6 +86,7 @@ export class ThreadsService {
       isActive: newThread.isActive,
       lastMessage: newThread.lastMessage,
       threadName: newThread.threadName,
+      threadLinkId: newThread.threadLinkId || threadLinkId,
     });
 
     const participantsToSave = participants.map((participant) => {
@@ -120,8 +99,10 @@ export class ThreadsService {
     await this.participantsRepository.save(participantsToSave);
     await this.threadsRepository.save(thread);
 
+    const threadWithParticipantsAndMessages =
+      await this.getThreadsWithParticipantsAndMessages([[thread], 0]);
     console.log("New thread: ", thread);
-    return { ...thread, participants };
+    return threadWithParticipantsAndMessages;
   }
 
   async getMessagesByThread(threadId: string) {
@@ -151,6 +132,15 @@ export class ThreadsService {
       otherUser
     );
     const otherUsers = Array.isArray(otherUser) ? otherUser : [otherUser];
+
+    // Base case: if the current user has no threads, return false
+    const currentUserThreads = await this.threadsRepository.find({
+      where: { userId: currentUser },
+    });
+
+    if (currentUserThreads.length === 0) {
+      return false;
+    }
 
     console.log("Retrieve all thread IDs that belong to the current user");
     let threadIds = await this.participantsRepository
@@ -183,5 +173,33 @@ export class ThreadsService {
     });
 
     return exists;
+  }
+
+  async getThreadsWithParticipantsAndMessages(threads: [Threads[], number]) {
+    // Get the participants for each thread and add them to the thread object
+    const threadsWithParticipants = await Promise.all(
+      threads[0].map(async (thread) => {
+        const participants = await this.participantsRepository
+          .createQueryBuilder("participants")
+          .select([
+            "users.id as userId",
+            "users.firstName as firstName",
+            "users.lastName as lastName",
+            "users.email as email",
+          ])
+          .innerJoin("users", "users", 'participants."userId"::uuid = users.id')
+          .getRawMany();
+
+        const messages = await this.messagesRepository.find({
+          where: { threadId: thread.id },
+        });
+
+        console.log("Participants: ", participants);
+
+        return { ...thread, participants, messages };
+      })
+    );
+
+    return threadsWithParticipants;
   }
 }

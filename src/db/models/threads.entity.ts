@@ -1,9 +1,9 @@
 // Threads.entity.ts
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Threads {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column()
@@ -20,4 +20,7 @@ export class Threads {
 
   @Column({ nullable: true })
   threadName: string;
+
+  @Column()
+  threadLinkId: string;
 }
