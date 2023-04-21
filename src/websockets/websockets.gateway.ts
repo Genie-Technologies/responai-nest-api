@@ -28,37 +28,28 @@ export class WebsocketsGateway
 
   @WebSocketServer() server: Server;
 
-  afterInit(server: Server) {
-    console.log("----> Websockets initialized");
-  }
+  afterInit(server: Server) {}
 
   async handleConnection(client: Socket, ...args: any[]) {
     const token = this.getTokenFromClient(client);
-    console.log("token: ", token);
-    console.log(`----> Client connected: `, client.id);
   }
 
-  handleDisconnect(client: Socket) {
-    console.log(`Client disconnected: ${client.id}`);
-  }
+  handleDisconnect(client: Socket) {}
 
   @SubscribeMessage("incoming_message")
   async handleMessage(
     client: Socket,
     payload: WebhookIncomingMessagePayload
   ): Promise<void> {
-    console.log("Message received: ", payload, "from client: ", client.id);
     // TODO: Authenticate the user
 
-    console.log("Saving last message to thread: ", payload.thread_id);
     await this.threadsService.saveLastMessageToThread(
       payload.thread_id,
       payload.message
     );
 
-    console.log("Saving message to database");
     const message = {
-      threadId: payload.thread_id,
+      threadId: payload.thread_link_id,
       message: payload.message,
       createdAt: new Date(payload.timestamp),
       updatedAt: new Date(payload.timestamp),
@@ -66,17 +57,16 @@ export class WebsocketsGateway
       receiverId: payload.receiver_id,
       id: randomUUID(),
     };
-    console.log("message: ", message);
+
     await this.messagesService.saveMessage(message);
 
     // Send the message to the room
-    console.log("Sending message to room: ", payload.thread_id);
+
     this.server
       .to(payload.thread_id)
       .emit(`received_message_${payload.receiver_id}`, payload);
     // This is if the user does not have a thread with the sender yet.
 
-    console.log("Sending message to user: ", payload);
     this.server
       .to(payload.receiver_id)
       .emit(`received_message_${payload.receiver_id}`, payload);
@@ -84,7 +74,6 @@ export class WebsocketsGateway
 
   @SubscribeMessage("join")
   handleJoin(client: Socket, payload: any): void {
-    console.log("Join received: ", payload, "from client: ", client.id);
     client.join(payload.room);
     this.server.to(payload.room).emit("received_message", {
       message: `User ${client.id} joined ${payload.room}`,
@@ -93,7 +82,6 @@ export class WebsocketsGateway
 
   @SubscribeMessage("join_home")
   handleJoinHome(client: Socket, payload: any): void {
-    console.log("Join home received: ", payload, "from client: ", client.id);
     client.join(payload.user_id);
     this.server
       .to(payload.user_id)
@@ -104,7 +92,6 @@ export class WebsocketsGateway
 
   @SubscribeMessage("leave")
   handleLeave(client: Socket, payload: any): void {
-    console.log("Leave received: ", payload, "from client: ", client.id);
     client.leave(payload.room);
     this.server
       .to(payload.room)

@@ -27,7 +27,6 @@ export class UsersController {
     @Query("name") name: string,
     @Query("phone") phone: string
   ) {
-    console.log("------------> : ", email, name, phone);
     return await this.usersService.searchUsers({
       email,
       name,
@@ -38,7 +37,6 @@ export class UsersController {
   // @UseGuards(AuthGuard('jwt'))
   @Get(":id")
   async getUser(@Param("id") id: string) {
-    console.log("------> id: ", id);
     try {
       return await this.usersService.getUser(id);
     } catch (error) {

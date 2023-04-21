@@ -1,12 +1,12 @@
-import { Controller, Get, Post, Param } from '@nestjs/common';
-import { MessagesService } from './messages.service';
-import { Messages } from 'src/db/models/messages.entity';
+import { Controller, Get, Post, Param } from "@nestjs/common";
+import { MessagesService } from "./messages.service";
+import { Messages } from "src/db/models/messages.entity";
 
 export type MessageBody = {
   message: string;
 };
 
-@Controller('messages')
+@Controller("messages")
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
   // Get the messages from the psql database
@@ -15,9 +15,8 @@ export class MessagesController {
     return await this.messagesService.getMessages();
   }
 
-  @Get(':id')
-  async getMessage(@Param('id') id: string) {
-    console.log('------> id: ', id);
+  @Get(":id")
+  async getMessage(@Param("id") id: string) {
     try {
       return await this.messagesService.getMessage(id);
     } catch (error) {
@@ -26,7 +25,7 @@ export class MessagesController {
     }
   }
 
-  @Get('sender/:sender_id')
+  @Get("sender/:sender_id")
   async getMessagesForUserThread(sender_id: string) {
     try {
       return await this.messagesService.getMessagesForUserThread(sender_id);
@@ -35,7 +34,7 @@ export class MessagesController {
     }
   }
 
-  @Post('create')
+  @Post("create")
   async createMessage(req) {
     const messageBody: Messages = req.body as any;
     return await this.messagesService.saveMessage(messageBody);

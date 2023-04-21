@@ -17,27 +17,21 @@ export class UsersService {
 
   async getUsers() {
     try {
-      console.log("Getting all users... ");
       return await this.usersRepository.find();
     } catch (error) {
-      console.log("Error getting all users: ", error);
       throw error;
     }
   }
 
   async getUser(idOrEmail: string): Promise<Users> {
     try {
-      console.log("Finding user by this id: ", idOrEmail);
-
       let foundUser: Users;
 
       if (!isUUID(idOrEmail) && !isEmail(idOrEmail)) {
-        console.log("id is not a UUID, trying to find by authOId: ", idOrEmail);
         foundUser = await this.usersRepository.findOne({
           where: { authOId: idOrEmail },
         });
       } else if (isEmail(idOrEmail)) {
-        console.log("id is an email, trying to find by email: ", idOrEmail);
         foundUser = await this.usersRepository.findOne({
           where: { email: idOrEmail },
         });
@@ -47,8 +41,6 @@ export class UsersService {
         });
       }
 
-      console.log("foundUser: ", foundUser);
-
       if (!foundUser) {
         throw new Error(this.USER_NOT_FOUND);
       }
@@ -57,14 +49,12 @@ export class UsersService {
 
       return foundUser;
     } catch (error) {
-      console.log("Error: ", error);
       throw error;
     }
   }
 
   async createUser(user?: Users) {
     try {
-      console.log("Creating user: ", user);
       return await this.usersRepository.save({
         id: randomUUID().toString(),
         lastLogin: new Date(),
@@ -85,7 +75,6 @@ export class UsersService {
 
       const firstName = name?.split(" ")[0];
       const lastName = name?.split(" ")[1];
-      console.log("email: ", email);
 
       const whereClause = [];
       const params: {

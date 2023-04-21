@@ -4,6 +4,7 @@ export interface WebhookIncomingMessagePayload {
   receiver_id: string;
   thread_id: string;
   timestamp: string;
+  thread_link_id: string;
 }
 
 export interface NewThreadRequestPayload {

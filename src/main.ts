@@ -13,7 +13,7 @@ async function bootstrap() {
 
   // Enable WebSockets
   app.useWebSocketAdapter(new IoAdapter(app));
-  console.log("LISTENING ON PORT:", port);
+
   await app.listen(port);
 }
 

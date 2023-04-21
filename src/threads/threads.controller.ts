@@ -15,7 +15,6 @@ export class ThreadsController {
   // @UseGuards(AuthGuard('jwt'))
   @Get("user/:userId")
   async getThreadsByUserId(@Param("userId") userId: string) {
-    console.log("Controller: --> getThreads: ", userId, " <--");
     return await this.threadService.getThreadsByUserId(userId);
   }
 
@@ -29,7 +28,6 @@ export class ThreadsController {
     @Body()
     newThread: NewThreadRequestPayload
   ) {
-    console.log("Controller: --> createThread: ", newThread, " <--");
     return await this.threadService.createThread(newThread);
   }
 }
