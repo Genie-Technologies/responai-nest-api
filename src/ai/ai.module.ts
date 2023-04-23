@@ -1,9 +1,9 @@
-import { Module } from '@nestjs/common';
-import { AiController } from './ai.controller';
-import { AiService } from './ai.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Users } from 'src/db/models/users.entity';
-import { MessagesModule } from 'src/messages/messages.module';
+import { Module } from "@nestjs/common";
+import { AiController } from "./ai.controller";
+import { AiService } from "./ai.service";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { Users } from "src/db/models/users.entity";
+import { MessagesModule } from "src/messages/messages.module";
 
 @Module({
   controllers: [AiController],

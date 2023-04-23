@@ -1,9 +1,9 @@
 // Update all references of Users to be the new AI entity.
 
-import { Test, TestingModule } from '@nestjs/testing';
-import { AiController } from './ai.controller';
+import { Test, TestingModule } from "@nestjs/testing";
+import { AiController } from "./ai.controller";
 
-describe('AiController', () => {
+describe("AiController", () => {
   let controller: AiController;
 
   beforeEach(async () => {
@@ -14,7 +14,7 @@ describe('AiController', () => {
     controller = module.get<AiController>(AiController);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(controller).toBeDefined();
   });
 });
