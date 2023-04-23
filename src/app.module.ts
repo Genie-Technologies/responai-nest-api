@@ -10,6 +10,7 @@ import { WebsocketsModule } from './websockets/websockets.module';
 import { AuthenticationService } from './authentication/authentication.service';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { ThreadsModule } from './threads/threads.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ThreadsModule } from './threads/threads.module';
     UsersModule,
     AuthenticationModule,
     ThreadsModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService, WebsocketsGateway, AuthenticationService],
