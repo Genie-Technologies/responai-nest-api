@@ -15,7 +15,7 @@ export class ThreadsService {
     @InjectRepository(Threads)
     private readonly threadsRepository: Repository<Threads>,
     @InjectRepository(Participants)
-    private readonly participantsRepository: Repository<Participants>
+    private readonly participantsRepository: Repository<Participants>,
   ) {}
 
   async getThreadsByUserId(userId: string) {
@@ -44,45 +44,20 @@ export class ThreadsService {
   }
 
   async createThread(newThread: NewThreadRequestPayload) {
-    const { participants } = newThread;
     const newUuid = randomUUID().toString();
-    const threadLinkId = randomUUID().toString();
-
-    const threadExists = await this.threadExistsBetweenUsers(
-      newThread.userId,
-      participants
-    );
-
-    if (threadExists) {
-      return await this.threadsRepository.findOne({
-        where: { userId: newThread.userId },
-      });
-    }
 
     const thread = this.threadsRepository.create({
       id: newUuid,
+      // userId represents the creator of the thread.
       userId: newThread.userId,
       createdAt: newThread.createdAt,
-      isActive: newThread.isActive,
       lastMessage: newThread.lastMessage,
       threadName: newThread.threadName,
-      threadLinkId: newThread.threadLinkId || threadLinkId,
     });
 
-    const participantsToSave = participants.map((participant) => {
-      return this.participantsRepository.create({
-        userId: participant,
-        threadId: newUuid,
-      });
-    });
+    const savedThread = await this.threadsRepository.save(thread);
 
-    await this.participantsRepository.save(participantsToSave);
-    await this.threadsRepository.save(thread);
-
-    const threadWithParticipantsAndMessages =
-      await this.getThreadsWithParticipantsAndMessages([[thread], 0]);
-
-    return threadWithParticipantsAndMessages;
+    return savedThread;
   }
 
   async getMessagesByThread(threadId: string) {
@@ -104,7 +79,7 @@ export class ThreadsService {
 
   async threadExistsBetweenUsers(
     currentUser: string,
-    otherUser: string | string[]
+    otherUser: string | string[],
   ): Promise<boolean> {
     const otherUsers = Array.isArray(otherUser) ? otherUser : [otherUser];
 
@@ -162,7 +137,7 @@ export class ThreadsService {
         });
 
         return { ...thread, participants, messages };
-      })
+      }),
     );
 
     return threadsWithParticipants;

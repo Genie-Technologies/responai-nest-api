@@ -11,6 +11,7 @@ import { Server, Socket } from "socket.io";
 import { WebhookIncomingMessagePayload } from "src/constants";
 import { MessagesService } from "src/messages/messages.service";
 import { ThreadsService } from "src/threads/threads.service";
+import { Participants } from "src/threads/threads.service";
 
 @WebSocketGateway(3002, {
   cors: {
@@ -23,7 +24,8 @@ export class WebsocketsGateway
 {
   constructor(
     private readonly threadsService: ThreadsService,
-    private readonly messagesService: MessagesService
+    private readonly messagesService: MessagesService,
+    private readonly participantsService: ParticipantsService,
   ) {}
 
   @WebSocketServer() server: Server;
@@ -39,17 +41,32 @@ export class WebsocketsGateway
   @SubscribeMessage("incoming_message")
   async handleMessage(
     client: Socket,
-    payload: WebhookIncomingMessagePayload
+    payload: WebhookIncomingMessagePayload,
   ): Promise<void> {
     // TODO: Authenticate the user
 
-    await this.threadsService.saveLastMessageToThread(
-      payload.thread_id,
-      payload.message
-    );
+    let threadId = payload.thread_id;
+
+    if (!threadId) {
+      // Create a thread
+      const thread = await this.threadsService.createThread({
+        userId: payload.sender_id,
+        threadName: payload.thread_name,
+        createdAt: payload.timestamp,
+        lastMessage: payload.message,
+      });
+
+      threadId = thread.id;
+
+      // Enter participants into table
+      await this.participantsService.createParticipants({
+        threadId,
+        ids: payload.participant_user_ids,
+      });
+    }
 
     const message = {
-      threadId: payload.thread_link_id,
+      threadId,
       message: payload.message,
       createdAt: new Date(payload.timestamp),
       updatedAt: new Date(payload.timestamp),
@@ -62,14 +79,9 @@ export class WebsocketsGateway
 
     // Send the message to the room
 
-    this.server
-      .to(payload.thread_id)
-      .emit(`received_message_${payload.receiver_id}`, payload);
-    // This is if the user does not have a thread with the sender yet.
-
-    this.server
-      .to(payload.receiver_id)
-      .emit(`received_message_${payload.receiver_id}`, payload);
+    payload.participant_user_ids.forEach((id) => {
+      this.server.to(id).emit(`received_message_${id}`, payload);
+    });
   }
 
   @SubscribeMessage("join")
