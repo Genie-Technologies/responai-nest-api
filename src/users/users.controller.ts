@@ -25,7 +25,7 @@ export class UsersController {
   async searchUsers(
     @Query("email") email: string,
     @Query("name") name: string,
-    @Query("phone") phone: string
+    @Query("phone") phone: string,
   ) {
     return await this.usersService.searchUsers({
       email,

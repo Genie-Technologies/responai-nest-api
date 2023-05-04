@@ -11,7 +11,7 @@ import { Server, Socket } from "socket.io";
 import { WebhookIncomingMessagePayload } from "src/constants";
 import { MessagesService } from "src/messages/messages.service";
 import { ThreadsService } from "src/threads/threads.service";
-import { Participants } from "src/threads/threads.service";
+import { ParticipantsService } from "src/participants/participants.service";
 
 @WebSocketGateway(3002, {
   cors: {
@@ -30,12 +30,14 @@ export class WebsocketsGateway
 
   @WebSocketServer() server: Server;
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   afterInit(server: Server) {}
 
   async handleConnection(client: Socket, ...args: any[]) {
     const token = this.getTokenFromClient(client);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   handleDisconnect(client: Socket) {}
 
   @SubscribeMessage("incoming_message")
@@ -59,10 +61,10 @@ export class WebsocketsGateway
       threadId = thread.id;
 
       // Enter participants into table
-      await this.participantsService.createParticipants({
+      await this.participantsService.createParticipants(
         threadId,
-        ids: payload.participant_user_ids,
-      });
+        payload.participant_user_ids,
+      );
     }
 
     const message = {
@@ -75,12 +77,12 @@ export class WebsocketsGateway
       id: randomUUID(),
     };
 
-    await this.messagesService.saveMessage(message);
+    const newMessage = await this.messagesService.saveMessage(message);
 
     // Send the message to the room
 
     payload.participant_user_ids.forEach((id) => {
-      this.server.to(id).emit(`received_message_${id}`, payload);
+      this.server.to(id).emit(`received_message_${id}`, newMessage);
     });
   }
 

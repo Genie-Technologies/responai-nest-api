@@ -26,7 +26,7 @@ export class ThreadsController {
   @Post("create")
   async createThread(
     @Body()
-    newThread: NewThreadRequestPayload
+    newThread: NewThreadRequestPayload,
   ) {
     return await this.threadService.createThread(newThread);
   }

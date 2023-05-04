@@ -10,7 +10,7 @@ export class MessagesService {
     @InjectRepository(Messages)
     private readonly messagesRepository: Repository<Messages>,
     @InjectRepository(Participants)
-    private readonly particpantsRepository: Repository<Participants>
+    private readonly particpantsRepository: Repository<Participants>,
   ) {}
 
   // Get the messages from the psql database
@@ -49,7 +49,7 @@ export class MessagesService {
         "Error getting all messages by sender: ",
         senderId,
         "\n",
-        error
+        error,
       );
     }
   }
@@ -65,7 +65,7 @@ export class MessagesService {
         "Error getting message by receiver: ",
         receiverId,
         "\n",
-        error
+        error,
       );
     }
   }
