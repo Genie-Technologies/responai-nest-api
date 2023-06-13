@@ -20,7 +20,4 @@ export class Threads {
 
   @Column({ nullable: true })
   threadName: string;
-
-  @Column()
-  threadLinkId: string;
 }

@@ -12,6 +12,11 @@ export class ThreadsController {
     return "OK";
   }
 
+  @Get()
+  async threads() {
+    return await this.threadService.getThreads();
+  }
+
   // @UseGuards(AuthGuard('jwt'))
   @Get("user/:userId")
   async getThreadsByUserId(@Param("userId") userId: string) {

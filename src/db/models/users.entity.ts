@@ -23,6 +23,9 @@ export class Users extends BaseEntity {
   firstName: string;
 
   @Column({ nullable: true })
+  fullName: string;
+
+  @Column({ nullable: true })
   email: string;
 
   @Column({ nullable: true })

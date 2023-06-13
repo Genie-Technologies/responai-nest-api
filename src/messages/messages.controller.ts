@@ -25,7 +25,7 @@ export class MessagesController {
     }
   }
 
-  @Get("sender/:sender_id")
+  @Get("user/:thread_id")
   async getMessagesForUserThread(sender_id: string) {
     try {
       return await this.messagesService.getMessagesForUserThread(sender_id);

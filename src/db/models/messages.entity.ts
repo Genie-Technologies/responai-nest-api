@@ -1,8 +1,8 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity('messages') // <-- Note the lowercase 'm' here
+@Entity("messages") // <-- Note the lowercase 'm' here
 export class Messages {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column()
@@ -14,7 +14,7 @@ export class Messages {
   @Column({ nullable: true })
   receiverId: string;
 
-  @Column({ type: 'uuid', nullable: true })
+  @Column({ type: "uuid", nullable: true })
   threadId: string;
 
   @Column({ nullable: true })

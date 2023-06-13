@@ -5,7 +5,7 @@ import { NewThreadRequestPayload } from "src/constants";
 import { Messages } from "src/db/models/messages.entity";
 import { Participants } from "src/db/models/participants.entity";
 import { Threads } from "src/db/models/threads.entity";
-import { Repository } from "typeorm";
+import { Not, Repository } from "typeorm";
 
 @Injectable()
 export class ThreadsService {
@@ -18,15 +18,37 @@ export class ThreadsService {
     private readonly participantsRepository: Repository<Participants>,
   ) {}
 
+  async getThreads() {
+    return await this.threadsRepository.find();
+  }
+
+  async getThread(threadId: string) {
+    return await this.threadsRepository.find({ where: { id: threadId } });
+  }
+
   async getThreadsByUserId(userId: string) {
-    const threads = await this.threadsRepository.findAndCount({
+    const threads = await this.participantsRepository.find({
       where: { userId },
     });
 
-    const threadsWithParticipants =
-      await this.getThreadsWithParticipantsAndMessages(threads);
+    const threadsForUser = await Promise.all(
+      threads.map(async (thread) => {
+        const userThread = await this.threadsRepository.find({
+          where: { id: thread.threadId },
+        });
 
-    return threadsWithParticipants;
+        // Now get all participants for the given threadId
+        const participants = await this.participantsRepository.find({
+          where: { threadId: thread.threadId, userId: Not(userId) },
+        });
+
+        Object.assign(userThread[0], { participants, messages: [] });
+
+        return userThread[0];
+      }),
+    );
+    console.log("threadsForUser", threadsForUser);
+    return threadsForUser;
   }
 
   async saveLastMessageToThread(threadId: string, lastMessage: string) {
@@ -133,7 +155,7 @@ export class ThreadsService {
           .getRawMany();
 
         const messages = await this.messagesRepository.find({
-          where: { threadId: thread.threadLinkId },
+          where: { threadId: thread.id },
         });
 
         return { ...thread, participants, messages };
