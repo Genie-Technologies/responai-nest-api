@@ -80,17 +80,6 @@ const dataInit = async (AppDataSource: DataSource) => {
     }),
   );
 
-  await AppDataSource.manager.save(
-    AppDataSource.manager.create(Threads, {
-      userId: user.id,
-      id: threadId,
-      createdAt: new Date(),
-      lastMessage: "First Message",
-      isActive: true,
-      threadName: "Shitposters",
-    }),
-  );
-
   // Create participants for threads
   await AppDataSource.manager.save(
     AppDataSource.manager.create(Participants, {

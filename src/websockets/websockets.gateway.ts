@@ -51,24 +51,6 @@ export class WebsocketsGateway
     // as a pre-optimization.
     const threadId = payload.thread_id;
 
-    // if (!threadId) {
-    //   // Create a thread
-    //   const thread = await this.threadsService.createThread({
-    //     userId: payload.sender_id,
-    //     threadName: payload.thread_name,
-    //     createdAt: payload.timestamp,
-    //     lastMessage: payload.message,
-    //   });
-
-    //   threadId = thread.id;
-
-    //   // Enter participants into table
-    //   await this.participantsService.createParticipants(
-    //     threadId,
-    //     payload.participant_user_ids,
-    //   );
-    // }
-
     const message = {
       threadId,
       message: payload.message,
@@ -88,6 +70,7 @@ export class WebsocketsGateway
         threadId,
         threadName: payload.thread_name,
         newMessage,
+        // TODO: This participant array has to be updated to add the original sender and remove the receiver
         participants: payload.participants,
       });
     });
