@@ -47,7 +47,7 @@ export class WebsocketsGateway
   ): Promise<void> {
     // TODO: Authenticate the user
 
-    // Thread will be created before the message is sent,
+    // TODO: Thread will be created before the message is sent,
     // as a pre-optimization.
     const threadId = payload.thread_id;
 
