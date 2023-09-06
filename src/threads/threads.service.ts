@@ -23,27 +23,43 @@ export class ThreadsService {
   }
 
   async getThread(threadId: string) {
-    return await this.threadsRepository.find({ where: { id: threadId } });
+    return await this.threadsRepository
+      .createQueryBuilder("thread")
+      .leftJoinAndSelect("thread.participants", "participants")
+      .where("thread.id = :threadId", { threadId })
+      .getOne();
   }
 
+  async saveThread(thread: Threads) {
+    try {
+      return await this.threadsRepository.save(thread);
+    } catch (error) {
+      console.log("Error saving thread:", error);
+    }
+  }
+
+  // TODO-AL: I tried using this createQueryBuilder but to no avail.
+  // const threads = await this.threadsRepository
+  //     .createQueryBuilder("threads")
+  //     .leftJoinAndSelect("threads.participants", "participants")
+  //     .leftJoinAndSelect("participants.user", "users")
+  //     .where(`users.id::uuid = :userId::uuid`, { userId })
+  //     .getMany();
+  //   return threads;
   async getThreadsByUserId(userId: string) {
     const threads = await this.participantsRepository.find({
       where: { userId },
     });
-
     const threadsForUser = await Promise.all(
       threads.map(async (thread) => {
         const userThread = await this.threadsRepository.find({
           where: { id: thread.threadId },
         });
-
         // Now get all participants for the given threadId
         const participants = await this.participantsRepository.find({
           where: { threadId: thread.threadId, userId: Not(userId) },
         });
-
-        Object.assign(userThread[0], { participants, messages: [] });
-
+        Object.assign(userThread[0], { participants });
         return userThread[0];
       }),
     );

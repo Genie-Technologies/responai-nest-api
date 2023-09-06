@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
+import { Threads } from "./threads.entity";
 
 @Entity("messages") // <-- Note the lowercase 'm' here
 export class Messages {
@@ -22,4 +23,7 @@ export class Messages {
 
   @Column({ nullable: true })
   updatedAt: Date;
+
+  @ManyToOne(() => Threads, (thread) => thread.messages)
+  thread: Threads;
 }

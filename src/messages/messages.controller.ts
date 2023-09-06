@@ -25,10 +25,11 @@ export class MessagesController {
     }
   }
 
-  @Get("user/:thread_id")
-  async getMessagesForUserThread(sender_id: string) {
+  @Get("thread/:thread_id")
+  async getMessagesForThread(@Param("thread_id") thread_id: string) {
+    console.log("thread_id", thread_id);
     try {
-      return await this.messagesService.getMessagesForUserThread(sender_id);
+      return await this.messagesService.getMessagesForThread(thread_id);
     } catch (error) {
       return { error: error.message, status: 400 };
     }

@@ -5,7 +5,9 @@ import {
   Index,
   PrimaryColumn,
   PrimaryGeneratedColumn,
+  OneToMany,
 } from "typeorm";
+import { Participants } from "./participants.entity";
 
 @Entity("users")
 export class Users extends BaseEntity {
@@ -45,4 +47,7 @@ export class Users extends BaseEntity {
 
   @Column({ nullable: true })
   phone: string;
+
+  @OneToMany(() => Participants, (participant) => participant.thread)
+  participants: Participants[];
 }

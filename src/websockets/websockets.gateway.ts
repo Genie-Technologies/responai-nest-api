@@ -6,6 +6,7 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from "@nestjs/websockets";
+import { Messages } from "src/db/models/messages.entity";
 import { UUID, randomUUID } from "crypto";
 import { Server, Socket } from "socket.io";
 import { WebhookIncomingMessagePayload } from "src/constants";
@@ -49,31 +50,38 @@ export class WebsocketsGateway
 
     // TODO: Thread will be created before the message is sent,
     // as a pre-optimization.
-    const threadId = payload.thread_id;
-
-    const message = {
-      threadId,
-      message: payload.message,
-      createdAt: new Date(payload.timestamp),
-      updatedAt: new Date(payload.timestamp),
-      senderId: payload.sender_id,
-      receiverId: payload.receiver_id,
-      id: randomUUID(),
-    };
     console.log("INCOMING_MESSAGE", payload);
+
+    const message = new Messages();
+    message.threadId = payload.thread_id;
+    message.message = payload.message;
+    message.createdAt = new Date(payload.timestamp);
+    message.updatedAt = new Date(payload.timestamp);
+    message.senderId = payload.sender_id;
+    message.receiverId = payload.receiver_id;
+    message.id = randomUUID();
+
+    // Get the thread instance and assign it to message.thread
+    // TODO-AL: Update thread.lastMessage to the new message
+    const thread = await this.threadsService.getThread(payload.thread_id);
+    message.thread = thread;
+
+    // Update the thread's lastMessage property
+    thread.lastMessage = message.message;
+    await this.threadsService.saveThread(thread);
 
     const newMessage = await this.messagesService.saveMessage(message);
 
     // Send the message to each user in the thread
-    payload.participants.forEach((id) => {
-      this.server.to(id).emit(`received_message`, {
-        threadId,
-        threadName: payload.thread_name,
-        newMessage,
-        // TODO: This participant array has to be updated to add the original sender and remove the receiver
-        participants: payload.participants,
-      });
+    // payload.participants.forEach((id) => {
+    this.server.to(payload.thread_id).emit(`received_message`, {
+      threadId: payload.thread_id,
+      threadName: payload.thread_name,
+      newMessage,
+      // TODO: This participant array has to be updated to add the original sender and remove the receiver
+      participants: payload.participants,
     });
+    // });
   }
 
   @SubscribeMessage("join")

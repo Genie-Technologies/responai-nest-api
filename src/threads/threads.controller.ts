@@ -25,6 +25,11 @@ export class ThreadsController {
 
   @Get(":threadId")
   async getThread(@Param("threadId") threadId: string) {
+    return await this.threadService.getThread(threadId);
+  }
+
+  @Get(":threadId/messages")
+  async getMessagesByThread(@Param("threadId") threadId: string) {
     return await this.threadService.getMessagesByThread(threadId);
   }
 

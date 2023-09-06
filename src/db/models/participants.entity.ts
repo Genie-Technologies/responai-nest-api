@@ -1,10 +1,16 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-
-import { UUID } from 'crypto';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+} from "typeorm";
+import { Threads } from "./threads.entity";
+import { Users } from "./users.entity";
 
 @Entity()
 export class Participants extends BaseEntity {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column()
@@ -12,4 +18,10 @@ export class Participants extends BaseEntity {
 
   @Column()
   userId: string;
+
+  @ManyToOne(() => Users, (user) => user.participants)
+  user: Users;
+
+  @ManyToOne(() => Threads, (thread) => thread.participants)
+  thread: Threads;
 }

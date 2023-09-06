@@ -52,7 +52,7 @@ export const dataSourceOptions: DataSourceOptions = {
   entities: [Messages, Users, Threads, Participants],
   migrationsTableName: "migration",
   migrations: ["dist/db/migrations/*{.ts,.js}"],
-  synchronize: true,
+  synchronize: false,
 
   // You have to comment this out for connecting to local db
   // ssl: true,
