@@ -49,8 +49,7 @@ export class WebsocketsGateway
     // TODO: Authenticate the user
 
     // TODO: Thread will be created before the message is sent,
-    // as a pre-optimization.
-    console.log("INCOMING_MESSAGE", payload);
+    // as a pre-optimization, so we can always ensure that we have a thread_id here.
 
     const message = new Messages();
     message.threadId = payload.thread_id;
@@ -62,7 +61,6 @@ export class WebsocketsGateway
     message.id = randomUUID();
 
     // Get the thread instance and assign it to message.thread
-    // TODO-AL: Update thread.lastMessage to the new message
     const thread = await this.threadsService.getThread(payload.thread_id);
     message.thread = thread;
 
@@ -72,16 +70,14 @@ export class WebsocketsGateway
 
     const newMessage = await this.messagesService.saveMessage(message);
 
-    // Send the message to each user in the thread
-    // payload.participants.forEach((id) => {
+    // Send the message to each user in the thread. FE has to be updated so these thread_ids are registered
+    // for this to work properly.
     this.server.to(payload.thread_id).emit(`received_message`, {
       threadId: payload.thread_id,
       threadName: payload.thread_name,
       newMessage,
-      // TODO: This participant array has to be updated to add the original sender and remove the receiver
       participants: payload.participants,
     });
-    // });
   }
 
   @SubscribeMessage("join")

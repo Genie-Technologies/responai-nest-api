@@ -63,7 +63,7 @@ export class ThreadsService {
         return userThread[0];
       }),
     );
-    console.log("threadsForUser", threadsForUser);
+
     return threadsForUser;
   }
 

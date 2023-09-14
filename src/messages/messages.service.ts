@@ -75,9 +75,10 @@ export class MessagesService {
       const messages = await this.messagesRepository.find({
         where: [{ threadId }],
       });
-      console.log("MESSAGES", messages);
       return messages;
-    } catch (error) {}
+    } catch (err) {
+      console.log("Error in getMessagesForThread:", err);
+    }
   }
 
   async saveMessage(message: Messages) {

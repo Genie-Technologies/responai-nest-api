@@ -27,7 +27,6 @@ export class MessagesController {
 
   @Get("thread/:thread_id")
   async getMessagesForThread(@Param("thread_id") thread_id: string) {
-    console.log("thread_id", thread_id);
     try {
       return await this.messagesService.getMessagesForThread(thread_id);
     } catch (error) {

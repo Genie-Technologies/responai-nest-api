@@ -48,6 +48,8 @@ export class Users extends BaseEntity {
   @Column({ nullable: true })
   phone: string;
 
+  // TODO: Not exactly sure what these relationship decorators are doing. GPT told me to add
+  // them to build a query but ended up not working. Will investigate later.
   @OneToMany(() => Participants, (participant) => participant.thread)
   participants: Participants[];
 }

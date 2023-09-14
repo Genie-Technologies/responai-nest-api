@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres
-    platform: linux/amd64
+    # platform: linux/amd64
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres

@@ -54,7 +54,6 @@ export class UsersService {
   }
 
   async createUser(user?: Users) {
-    console.log("USER", user);
     try {
       return await this.usersRepository.save({
         id: randomUUID().toString(),
