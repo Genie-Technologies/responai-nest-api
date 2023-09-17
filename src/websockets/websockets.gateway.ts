@@ -19,6 +19,12 @@ import { ParticipantsService } from "src/participants/participants.service";
     origin: "*",
     methods: ["GET", "POST"],
   },
+  connectionStateRecovery: {
+    // the backup duration of the sessions and the packets
+    maxDisconnectionDuration: 2 * 60 * 1000,
+    // whether to skip middlewares upon successful recovery
+    skipMiddlewares: true,
+  },
 })
 export class WebsocketsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -83,7 +89,7 @@ export class WebsocketsGateway
   @SubscribeMessage("join")
   handleJoin(client: Socket, payload: any): void {
     client.join(payload.room);
-    this.server.to(payload.room).emit("received_message", {
+    this.server.to(payload.room).emit("joined_room", {
       message: `User ${client.id} joined ${payload.room}`,
     });
   }
@@ -91,11 +97,9 @@ export class WebsocketsGateway
   @SubscribeMessage("join_home")
   handleJoinHome(client: Socket, payload: any): void {
     client.join(payload.user_id);
-    this.server
-      .to(payload.user_id)
-      .emit(`received_message_${payload.user_id}`, {
-        message: `User ${client.id} joined ${payload.user_id}`,
-      });
+    this.server.to(payload.user_id).emit(`joined_home_${payload.user_id}`, {
+      message: `User ${client.id} joined ${payload.user_id}`,
+    });
   }
 
   @SubscribeMessage("leave")
