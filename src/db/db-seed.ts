@@ -41,6 +41,15 @@ const dataInit = async (AppDataSource: DataSource) => {
     }),
   );
 
+  const user4 = await AppDataSource.manager.save(
+    AppDataSource.manager.create(Users, {
+      firstName: "Shagun",
+      lastName: "Mistry",
+      email: "smistr61@gmail.com",
+      password: "test",
+    }),
+  );
+
   const thread = await AppDataSource.manager.save(
     AppDataSource.manager.create(Threads, {
       userId: user.id,
@@ -89,6 +98,14 @@ const dataInit = async (AppDataSource: DataSource) => {
   await AppDataSource.manager.save(
     AppDataSource.manager.create(Participants, {
       id: randomUUID(),
+      threadId: thread.id,
+      userId: user4.id,
+    }),
+  );
+
+  await AppDataSource.manager.save(
+    AppDataSource.manager.create(Participants, {
+      id: randomUUID(),
       threadId: thread2.id,
       userId: user3.id,
     }),
@@ -99,6 +116,14 @@ const dataInit = async (AppDataSource: DataSource) => {
       id: randomUUID(),
       threadId: thread2.id,
       userId: user.id,
+    }),
+  );
+
+  await AppDataSource.manager.save(
+    AppDataSource.manager.create(Participants, {
+      id: randomUUID(),
+      threadId: thread2.id,
+      userId: user4.id,
     }),
   );
 
@@ -117,6 +142,15 @@ const dataInit = async (AppDataSource: DataSource) => {
       senderId: user3.id,
       receiverId: user.id,
       message: "We own the night",
+      threadId: thread2.id,
+    }),
+  );
+
+  await AppDataSource.manager.save(
+    AppDataSource.manager.create(Messages, {
+      senderId: user4.id,
+      receiverId: user.id,
+      message: "I am Batgun",
       threadId: thread2.id,
     }),
   );

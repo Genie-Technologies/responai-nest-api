@@ -72,10 +72,9 @@ export class MessagesService {
 
   async getMessagesForThread(threadId: string) {
     try {
-      const messages = await this.messagesRepository.find({
+      return await this.messagesRepository.find({
         where: [{ threadId }],
       });
-      return messages;
     } catch (err) {
       console.log("Error in getMessagesForThread:", err);
     }
