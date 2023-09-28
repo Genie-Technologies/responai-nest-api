@@ -11,6 +11,7 @@ import { AuthenticationService } from "./authentication/authentication.service";
 import { AuthenticationModule } from "./authentication/authentication.module";
 import { ThreadsModule } from "./threads/threads.module";
 import { ParticipantsModule } from "./participants/participants.module";
+import { AiModule } from "./ai/ai.module";
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ParticipantsModule } from "./participants/participants.module";
     AuthenticationModule,
     ThreadsModule,
     ParticipantsModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService, WebsocketsGateway, AuthenticationService],

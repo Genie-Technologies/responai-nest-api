@@ -8,7 +8,6 @@ import { randomUUID } from "crypto";
 
 dataSource.initialize().then(async () => {
   await dataInit(dataSource);
-
   process.exit(0);
 });
 

@@ -26,6 +26,7 @@ module.exports = {
       "error",
       {
         'endOfLine': 'auto',
+        'singleQuote': false,
         'doubleQuote': true,
         'trailingComma': 'all',
       },
