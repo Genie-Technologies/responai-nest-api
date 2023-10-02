@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Post,
-  Req,
-  Query,
-  Request,
-  Body,
-} from "@nestjs/common";
+import { Controller, Get, Body } from "@nestjs/common";
 import { AiService } from "./ai.service";
 
 @Controller("ai")
@@ -27,8 +18,8 @@ export class AiController {
   }
 
   @Get("generate-embedding")
-  generateEmbedding(@Body() body: { searchText: string; threadId: string }) {
-    const { searchText, threadId } = body;
+  generateEmbedding(@Body() body: { searchText: string }) {
+    const { searchText } = body;
     return this.aiService.generateEmbedding(searchText);
   }
 }

@@ -1,13 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import { InjectRepository, InjectEntityManager } from "@nestjs/typeorm";
-import { Repository, EntityManager } from "typeorm";
+import { InjectEntityManager } from "@nestjs/typeorm";
+import { EntityManager } from "typeorm";
 import { codeBlock, oneLine } from "common-tags";
-import { randomUUID } from "crypto";
-import { isUUID } from "src/utils";
 import {
   ChatCompletionRequestMessage,
   CreateEmbeddingResponse,
 } from "openai-edge";
+import { OpenAIStream, StreamingTextResponse } from "ai";
 import openai from "./openai_config";
 
 @Injectable()
