@@ -75,14 +75,6 @@ export class AiService {
     console.log("Result: ", result);
   }
 
-  // `SELECT * FROM messages ORDER BY embedding <-> '${JSON.stringify(res)}' LIMIT 100;`
-  // const result = await this.entityManager
-  //       .createQueryBuilder()
-  //       .select()
-  //       .from("messages", "m")
-  //       .orderBy(`m.embedding <-> '${JSON.stringify(res)}'`)
-  //       .limit(100)
-  //       .execute();
   async cosineSimilaritySearch(searchText: string, threadId: string) {
     try {
       const res = await this.generateEmbedding(searchText);
