@@ -29,10 +29,14 @@ module.exports = {
         'singleQuote': false,
         'doubleQuote': true,
         'trailingComma': 'all',
+        'formatOnSave': true,
       },
       {
         "usePrettierrc": false
       }
     ]
   },
+  settings: {
+    "editor.formatOnSave": true,
+  }
 };

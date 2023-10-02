@@ -1,6 +1,6 @@
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
-import { dataSourceOptions } from "./db/data-source";
+import { dataSourceOptions, vectorSourceOptions } from "./db/data-source";
 import { MessagesModule } from "./messages/messages.module";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -16,6 +16,7 @@ import { AiModule } from "./ai/ai.module";
 @Module({
   imports: [
     TypeOrmModule.forRoot(dataSourceOptions),
+    TypeOrmModule.forRoot(vectorSourceOptions),
     MessagesModule,
     WebsocketsModule,
     UsersModule,

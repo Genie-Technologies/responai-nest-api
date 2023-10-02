@@ -40,6 +40,11 @@ const configService = new ConfigService(process.env).ensureValues([
   "POSTGRES_USER",
   "POSTGRES_PASSWORD",
   "POSTGRES_DATABASE",
+  "VECTOR_POSTGRES_HOST",
+  "VECTOR_POSTGRES_PORT",
+  "VECTOR_POSTGRES_USER",
+  "VECTOR_POSTGRES_PASSWORD",
+  "VECTOR_POSTGRES_DATABASE",
 ]);
 
 export const dataSourceOptions: DataSourceOptions = {
@@ -53,6 +58,22 @@ export const dataSourceOptions: DataSourceOptions = {
   migrationsTableName: "migration",
   migrations: ["dist/db/migrations/*{.ts,.js}"],
   synchronize: true,
+
+  // You have to comment this out for connecting to local db
+  ssl: true,
+};
+
+export const vectorSourceOptions: DataSourceOptions = {
+  name: "vectordbConnection",
+  type: "postgres",
+  host: configService.getValue("VECTOR_POSTGRES_HOST"),
+  port: parseInt(configService.getValue("VECTOR_POSTGRES_PORT")),
+  username: configService.getValue("VECTOR_POSTGRES_USER"),
+  password: configService.getValue("VECTOR_POSTGRES_PASSWORD"),
+  database: configService.getValue("VECTOR_POSTGRES_DATABASE"),
+  migrationsTableName: "migration",
+  migrations: ["dist/db/migrations/*{.ts,.js}"],
+  synchronize: false,
 
   // You have to comment this out for connecting to local db
   ssl: true,
