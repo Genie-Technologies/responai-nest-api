@@ -7,7 +7,7 @@ import {
   CreateEmbeddingResponse,
 } from "openai-edge";
 import { OpenAIStream, StreamingTextResponse } from "ai";
-import openai from "./openai_config";
+import openai from "./ai.config";
 
 @Injectable()
 export class AiService {
