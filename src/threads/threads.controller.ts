@@ -1,5 +1,4 @@
 import { Controller, Get, Param, Post, Body } from "@nestjs/common";
-import { Threads } from "src/db/models/threads.entity";
 import { ThreadsService } from "./threads.service";
 import { NewThreadRequestPayload } from "src/constants";
 

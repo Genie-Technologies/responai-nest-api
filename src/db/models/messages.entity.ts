@@ -24,6 +24,9 @@ export class Messages {
   @Column({ nullable: true })
   updatedAt: Date;
 
+  @Column({ nullable: true })
+  embedded: boolean;
+
   @ManyToOne(() => Threads, (thread) => thread.messages)
   thread: Threads;
 }
