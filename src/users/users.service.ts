@@ -9,7 +9,7 @@ import { Repository } from "typeorm";
 export class UsersService {
   constructor(
     @InjectRepository(Users)
-    private readonly usersRepository: Repository<Users>
+    private readonly usersRepository: Repository<Users>,
   ) {}
 
   USER_NOT_FOUND = "User not found";
@@ -66,7 +66,7 @@ export class UsersService {
     } catch (error) {
       console.error("Error -- while creating user: ", error);
       throw new Error(
-        "There was an error creating the user, please try again later."
+        "There was an error creating the user, please try again later.",
       );
     }
   }
@@ -79,14 +79,6 @@ export class UsersService {
       const firstName = name?.split(" ")[0];
       const lastName = name?.split(" ")[1];
 
-      const whereClause = [];
-      const params: {
-        firstName?: string;
-        lastName?: string;
-        email?: string;
-        phone?: string;
-      } = {};
-
       const users = await this.usersRepository
         .createQueryBuilder("users")
         .where("users.email = :email", { email })
@@ -96,7 +88,7 @@ export class UsersService {
           {
             firstName,
             lastName,
-          }
+          },
         )
         // limit to 10 results
         .limit(10)
@@ -106,7 +98,7 @@ export class UsersService {
     } catch (error) {
       console.error("Error while searching users: ", error);
       throw new Error(
-        "There was an error searching for users, please try again later."
+        "There was an error searching for users, please try again later.",
       );
     }
   }

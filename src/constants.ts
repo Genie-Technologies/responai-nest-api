@@ -6,11 +6,11 @@ export interface WebhookIncomingMessagePayload {
   thread_name: string;
   timestamp: string;
   participants: string[];
+  user_id?: string;
 }
 
 export interface NewThreadRequestPayload {
   userId: string;
   createdAt: string;
-  lastMessage: string | null;
-  threadName: string;
+  isActive: boolean;
 }

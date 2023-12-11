@@ -60,7 +60,7 @@ export const dataSourceOptions: DataSourceOptions = {
   synchronize: true,
 
   // You have to comment this out for connecting to local db
-  ssl: true,
+  // ssl: true,
 };
 
 export const vectorSourceOptions: DataSourceOptions = {
@@ -76,9 +76,10 @@ export const vectorSourceOptions: DataSourceOptions = {
   synchronize: false,
 
   // You have to comment this out for connecting to local db
-  ssl: true,
+  // ssl: true,
 };
 
 export const dataSource = new DataSource(dataSourceOptions);
+export const vectorDataSource = new DataSource(vectorSourceOptions);
 
 export { configService };

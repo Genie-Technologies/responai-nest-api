@@ -69,9 +69,9 @@ export class WebsocketsGateway
     // Get the thread instance and assign it to message.thread
     const thread = await this.threadsService.getThread(payload.thread_id);
     message.thread = thread;
-
-    // Update the thread's lastMessage property
     thread.lastMessage = message.message;
+
+    delete thread.participants;
     await this.threadsService.saveThread(thread);
 
     const newMessage = await this.messagesService.saveMessage(message);

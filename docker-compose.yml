@@ -5,5 +5,16 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
     ports:
       - "5433:5432"
+  vectordb: 
+    image: ankane/pgvector
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: chatvectordb
+    ports:
+      - "5434:5432"
+    volumes:
+     - ./vectordbinit.sql:/docker-entrypoint-initdb.d/vectordbinit.sql

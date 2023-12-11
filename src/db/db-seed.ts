@@ -133,6 +133,7 @@ const dataInit = async (AppDataSource: DataSource) => {
       receiverId: user2.id,
       message: "I'm not fuckin leavin",
       threadId: thread.id,
+      embedded: false,
     }),
   );
 
@@ -142,6 +143,7 @@ const dataInit = async (AppDataSource: DataSource) => {
       receiverId: user.id,
       message: "We own the night",
       threadId: thread2.id,
+      embedded: false,
     }),
   );
 
@@ -151,6 +153,7 @@ const dataInit = async (AppDataSource: DataSource) => {
       receiverId: user.id,
       message: "I am Batgun",
       threadId: thread2.id,
+      embedded: false,
     }),
   );
 };
