@@ -9,7 +9,7 @@ import { Repository } from "typeorm";
 export class UsersService {
   constructor(
     @InjectRepository(Users)
-    private readonly usersRepository: Repository<Users>,
+    private readonly usersRepository: Repository<Users>
   ) {}
 
   USER_NOT_FOUND = "User not found";
@@ -53,6 +53,25 @@ export class UsersService {
     }
   }
 
+  async getUserNames(
+    ids: string[]
+  ): Promise<{ id: string; fullName: string }[]> {
+    try {
+      const userNames = await Promise.all(ids.map(async (id) => {
+        const user = await this.getUser(id);
+        return {
+          id: id,
+          fullName: user.firstName,
+        };
+      }));
+
+      return userNames;
+    } catch (error) {
+      console.error("Error -- while getting user names: ", error);
+      return null;
+    }
+  }
+
   async createUser(user?: Users) {
     try {
       return await this.usersRepository.save({
@@ -66,7 +85,7 @@ export class UsersService {
     } catch (error) {
       console.error("Error -- while creating user: ", error);
       throw new Error(
-        "There was an error creating the user, please try again later.",
+        "There was an error creating the user, please try again later."
       );
     }
   }
@@ -88,7 +107,7 @@ export class UsersService {
           {
             firstName,
             lastName,
-          },
+          }
         )
         // limit to 10 results
         .limit(10)
@@ -98,7 +117,7 @@ export class UsersService {
     } catch (error) {
       console.error("Error while searching users: ", error);
       throw new Error(
-        "There was an error searching for users, please try again later.",
+        "There was an error searching for users, please try again later."
       );
     }
   }

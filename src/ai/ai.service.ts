@@ -9,29 +9,39 @@ import { ChatCompletionMessageParam } from "openai/resources";
 import { Messages } from "src/db/models/messages.entity";
 import openai, { openai2 } from "./ai.config";
 import { ChatMessage, MsgEmbdngContext } from "./types";
+import { UsersService } from "src/users/users.service";
 
 @Injectable()
 export class AiService {
+  USER_NOT_FOUND = "User not found";
+  INVALID_UUID = "Invalid UUID";
+
+  ASSISTANT_PROMPT = `You are a master at social communication and will be answering queries about a chat between people.
+  Use the chat history context to answer the user's questions, give your insights and analysis from your knowledge and experience. Try to keep the conversation going.`;
+
+  ASSISTANT_TONE_PROMPT = `Your personality is: "friendly, sarcastic, sassy, and talkative". Use emojis to express your personality. Also adapt your personality to the user's personality based on the chat history context. Be SASSY!`;
+
   constructor(
     @InjectEntityManager("vectordbConnection")
     private entityManager: EntityManager,
 
     @InjectRepository(Messages)
     private readonly messagesRepository: Repository<Messages>,
-  ) {}
 
-  USER_NOT_FOUND = "User not found";
-  INVALID_UUID = "Invalid UUID";
+    private readonly userService: UsersService
+  ) {}
 
   async saveMsgsEmbdgs(threadId) {
     try {
       const msgs = await this.messagesRepository.find({
-        where: { threadId, embedded: false },
+        where: { threadId },
       });
 
       if (!msgs || msgs.length === 0) {
         return { msgs, text: "No messages to embed" };
       }
+
+      console.log("Messages to embed:", msgs);
 
       const embeddings = await this.generateEmbedding(msgs);
       const msgsEmbdgs = this.pairEmbdgsWithMsgs(embeddings, msgs);
@@ -63,7 +73,7 @@ export class AiService {
 
     if (Array.isArray(msgContent)) {
       tokenizedMsgContent = msgContent.map((msg) =>
-        msg.message.trim().replace(/\n/g, " "),
+        msg.message.trim().replace(/\n/g, " ")
       );
     } else {
       // OpenAI recommends replacing newlines with spaces for best results (specific to embeddings)
@@ -85,7 +95,7 @@ export class AiService {
 
   pairEmbdgsWithMsgs(
     embeddings: { object: string; embedding: number[]; index: number }[],
-    msgs: Messages[],
+    msgs: Messages[]
   ): MsgEmbdngContext[] {
     // @ts-ignore
     return embeddings.map((embdgObj) => {
@@ -110,7 +120,7 @@ export class AiService {
           .into("messages")
           .values(msg)
           .execute();
-      }),
+      })
     );
 
     return res;
@@ -140,7 +150,7 @@ export class AiService {
       embedding: string[];
     }[],
     msgContent: string,
-    msgHistory?: ChatMessage[],
+    msgHistory?: ChatMessage[]
   ) {
     let promptContent = "";
     if (searchResults && searchResults.length > 0) {
@@ -196,40 +206,72 @@ export class AiService {
 
   async chatCompletionRequest(
     msgsObj: { threadId?: string; messages: ChatMessage[] },
-    res,
+    res
   ) {
-    // First we need to do a similarity search on the last user message that was sent and that is the last item in the messages array
-    // in the msgsObj.messages property and with the role == 'user'.
-    // Then we need to compile the prompt content with the messages array and the similarity search result.
-
     let searchResults;
     const lastUserMsg = this.getLastUserMsg(msgsObj);
 
     if (msgsObj.threadId) {
       searchResults = await this.cosineSimilaritySearch(
         lastUserMsg.content,
-        msgsObj.threadId,
+        msgsObj.threadId
       );
     }
 
-    const promptContent = this.compilePrompContent(
-      searchResults,
-      lastUserMsg.content,
-      msgsObj.messages,
-    );
+    const msgs = await this.messagesRepository.find({
+      where: { threadId: msgsObj.threadId },
+    });
+
+    const threadUsers = msgs.map((msg) => msg.senderId);
+    const users = await this.userService.getUserNames(threadUsers);
+
+    console.log("Users: ", users);
+
+    const senderAndMsgs = msgs
+      .map((msg) => {
+        const sender = users.find((user) => user.id === msg.senderId);
+        return `${sender}: ${msg.message}`;
+      })
+      .join("\n");
 
     const chatMessage: ChatCompletionMessageParam = {
       role: "user",
-      content: promptContent,
+      content: lastUserMsg.content,
+    };
+
+    const assistantPrompt1: ChatCompletionMessageParam = {
+      role: "assistant",
+      content: this.ASSISTANT_PROMPT,
+    };
+
+    const chatHistory = this.chatHistoryToString(msgsObj.messages);
+
+    const assistantPrompt2: ChatCompletionMessageParam = {
+      role: "assistant",
+      content: `Chat History for Context: ${senderAndMsgs}`,
+    };
+
+    const assistantPrompt3: ChatCompletionMessageParam = {
+      role: "assistant",
+      content: `More Context: ${searchResults}`,
+    };
+
+    const assistantPrompt4: ChatCompletionMessageParam = {
+      role: "assistant",
+      content: this.ASSISTANT_TONE_PROMPT,
     };
 
     try {
       const response = await openai2.chat.completions.create({
         model: "gpt-3.5-turbo",
         stream: true,
-        messages: [chatMessage],
-        // max_tokens: 512,
-        // temperature: 0.2,
+        messages: [
+          assistantPrompt1,
+          assistantPrompt2,
+          assistantPrompt3,
+          assistantPrompt4,
+          chatMessage,
+        ],
       });
       const stream = OpenAIStream(response);
       const streamingRes = new StreamingTextResponse(stream).body;
