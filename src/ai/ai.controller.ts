@@ -29,7 +29,7 @@ export class AiController {
 
   @Post("chat")
   async chat(
-    @Body() body: { threadId?: string; messages: ChatMessage[] },
+    @Body() body: { messages: ChatMessage[]; threadId?: string },
     @Res() res: Response,
   ) {
     return await this.aiService.chatCompletionRequest(
