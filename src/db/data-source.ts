@@ -58,9 +58,7 @@ export const dataSourceOptions: DataSourceOptions = {
   migrationsTableName: "migration",
   migrations: ["dist/db/migrations/*{.ts,.js}"],
   synchronize: true,
-
-  // You have to comment this out for connecting to local db
-  ssl: true,
+  ssl: configService.isProduction(),
 };
 
 export const vectorSourceOptions: DataSourceOptions = {
@@ -74,9 +72,7 @@ export const vectorSourceOptions: DataSourceOptions = {
   migrationsTableName: "migration",
   migrations: ["dist/db/migrations/*{.ts,.js}"],
   synchronize: false,
-
-  // You have to comment this out for connecting to local db
-  ssl: true,
+  ssl: configService.isProduction(),
 };
 
 export const dataSource = new DataSource(dataSourceOptions);
