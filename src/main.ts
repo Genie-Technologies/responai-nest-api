@@ -1,5 +1,7 @@
 import { NestFactory } from "@nestjs/core";
 import type { NestExpressApplication } from "@nestjs/platform-express";
+import { readFileSync } from "fs";
+import * as https from "https";
 import { AppModule } from "./app.module";
 
 // Enable WebSockets
@@ -14,7 +16,9 @@ async function bootstrap() {
   app.useBodyParser("text");
 
   // Enable CORS
-  app.enableCors();
+  app.enableCors({
+    origin: ["http://localhost:3000", "https://www.responai.com/"],
+  });
 
   // Enable WebSockets
   app.useWebSocketAdapter(new IoAdapter(app));
