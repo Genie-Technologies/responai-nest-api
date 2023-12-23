@@ -59,7 +59,7 @@ export const dataSourceOptions: DataSourceOptions = {
   migrations: ["dist/db/migrations/*{.ts,.js}"],
   synchronize: configService.isProduction(),
   // must be commented out for local development
-  ssl: true,
+  ssl: configService.isProduction(),
 };
 
 console.log("IS_PROD", configService.isProduction());
@@ -77,9 +77,10 @@ export const vectorSourceOptions: DataSourceOptions = {
   synchronize: false,
 
   // must be commented out for local development
-  ssl: true,
+  ssl: configService.isProduction(),
 };
 
 export const dataSource = new DataSource(dataSourceOptions);
+export const vectorDataSource = new DataSource(vectorSourceOptions);
 
 export { configService };

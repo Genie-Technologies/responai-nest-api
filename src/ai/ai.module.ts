@@ -3,6 +3,7 @@ import { AiController } from "./ai.controller";
 import { AiService } from "./ai.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Messages } from "src/db/models/messages.entity";
+import { UsersModule } from "src/users/users.module";
 
 // TypeOrmModule.forFeature([Messages, Threads, Participants])
 
@@ -12,6 +13,7 @@ import { Messages } from "src/db/models/messages.entity";
   imports: [
     TypeOrmModule.forFeature([], "vectordbConnection"),
     TypeOrmModule.forFeature([Messages]),
+    UsersModule,
   ],
   exports: [AiService],
 })

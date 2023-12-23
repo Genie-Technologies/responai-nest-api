@@ -9,30 +9,39 @@ import { ChatCompletionMessageParam } from "openai/resources";
 import { Messages } from "src/db/models/messages.entity";
 import openai, { openai2 } from "./ai.config";
 import { ChatMessage, MsgEmbdngContext } from "./types";
+import { UsersService } from "src/users/users.service";
 
 @Injectable()
 export class AiService {
+  USER_NOT_FOUND = "User not found";
+  INVALID_UUID = "Invalid UUID";
+
+  ASSISTANT_PROMPT = `You are a master at social communication and will be answering queries about a chat between people.
+  Use the chat history context to answer the user's questions, give your insights and analysis from your knowledge and experience. Try to keep the conversation going.`;
+
+  ASSISTANT_TONE_PROMPT = `Your personality is: "friendly, sarcastic, sassy, and talkative". Use emojis to express your personality. Also adapt your personality to the user's personality based on the chat history context. Be SASSY!`;
+
   constructor(
     @InjectEntityManager("vectordbConnection")
     private entityManager: EntityManager,
 
     @InjectRepository(Messages)
     private readonly messagesRepository: Repository<Messages>,
-  ) {}
 
-  USER_NOT_FOUND = "User not found";
-  INVALID_UUID = "Invalid UUID";
+    private readonly userService: UsersService
+  ) {}
 
   async saveMsgsEmbdgs(threadId) {
     try {
       const msgs = await this.messagesRepository.find({
-        where: { threadId, embedded: Not(null) },
+        where: { threadId },
       });
 
-      console.log("Msgs: ", msgs);
       if (!msgs || msgs.length === 0) {
         return { msgs, text: "No messages to embed" };
       }
+
+      console.log("Messages to embed:", msgs);
 
       const embeddings = await this.generateEmbedding(msgs);
       const msgsEmbdgs = this.pairEmbdgsWithMsgs(embeddings, msgs);
@@ -48,14 +57,12 @@ export class AiService {
           .where("id IN (:...msgIds)", { msgIds })
           .execute();
 
-        console.log("Update result: ", updateResult);
-
         return updateResult;
       } else {
         throw new Error("Error saving embeddings");
       }
     } catch (err) {
-      console.log(err);
+      console.log("Error saving embeddings:", err);
     }
   }
 
@@ -66,7 +73,7 @@ export class AiService {
 
     if (Array.isArray(msgContent)) {
       tokenizedMsgContent = msgContent.map((msg) =>
-        msg.message.trim().replace(/\n/g, " "),
+        msg.message.trim().replace(/\n/g, " ")
       );
     } else {
       // OpenAI recommends replacing newlines with spaces for best results (specific to embeddings)
@@ -74,14 +81,12 @@ export class AiService {
     }
 
     try {
-      console.log("Getting AI response");
       const res = await openai.createEmbedding({
         model: "text-embedding-ada-002",
         input: tokenizedMsgContent,
       });
 
       const { data }: CreateEmbeddingResponse = await res.json();
-      console.log("AI res embedding length:", data.length);
       return data; // ?.data?.data[0].embedding;
     } catch (err) {
       console.log(err);
@@ -90,7 +95,7 @@ export class AiService {
 
   pairEmbdgsWithMsgs(
     embeddings: { object: string; embedding: number[]; index: number }[],
-    msgs: Messages[],
+    msgs: Messages[]
   ): MsgEmbdngContext[] {
     // @ts-ignore
     return embeddings.map((embdgObj) => {
@@ -115,17 +120,16 @@ export class AiService {
           .into("messages")
           .values(msg)
           .execute();
-      }),
+      })
     );
 
-    console.log("Result: ", res);
     return res;
   }
 
   async cosineSimilaritySearch(searchText: string, threadId: string) {
     try {
       const res = await this.generateEmbedding(searchText);
-      const result = await this.entityManager
+      return await this.entityManager
         .createQueryBuilder()
         .select()
         .from("messages", "m")
@@ -133,11 +137,8 @@ export class AiService {
         .orderBy(`m.embedding <-> '${JSON.stringify(res[0].embedding)}'`)
         .limit(100)
         .execute();
-
-      console.log("Search Result: ", result.length);
-      return result;
     } catch (err) {
-      console.log(err);
+      console.log("Error in cosineSimilaritySearch:", err);
     }
   }
 
@@ -149,18 +150,22 @@ export class AiService {
       embedding: string[];
     }[],
     msgContent: string,
-    msgHistory?: ChatMessage[],
+    msgHistory?: ChatMessage[]
   ) {
-    const promptContent = searchResults.reduce((acc, curr) => {
-      return acc + curr.msg + "\n---\n";
-    }, "");
+    let promptContent = "";
+    if (searchResults && searchResults.length > 0) {
+      promptContent = searchResults.reduce((acc, curr) => {
+        return acc + curr.msg + "\n---\n";
+      }, "");
+    }
+
     const chatHistory = this.chatHistoryToString(msgHistory);
 
     return codeBlock`
       ${oneLine`
       You are a master at social communication and will be assisting users for a chat application.
-      You will respond to the user's questions and inquiries. Use the relavent messages below to give you context, when needed.
-      You can also use the chat history between you and the user to give you context, when needed as well.
+      You will respond to the user's questions and inquiries. Use the relavent messages below between users in a chat room to give you context, when needed.
+      You can also use the chat history between you and the user to give you context, when needed as well. References to "this chat" or "this thread" will refer to the chat room history, not history between you and the user.
       Answer user questions, which may be related or unlrelated to the chat history, give your insights and analysis from your knowledge and experience.
       Take your time to answer the user's questions and inquiries, carefully curating your responses.
       `}
@@ -172,16 +177,18 @@ export class AiService {
         prompt: "Can you summarize the chat history for me?"
         response: "Sure, here is a summary of the chat history: ..."
 
-      Relavent Messages in a chat thread to give you context:
+
+      Relavent Messages in a chat room to give you context:
       ${promptContent}
 
-      Messages between the user and the chat assistant:
-      ${chatHistory}
 
       Question: """
       ${msgContent}
       """
     `;
+
+    // Messages between the user and the chat assistant:
+    //   ${chatHistory}
   }
 
   getLastUserMsg = (msgsObj) => {
@@ -197,37 +204,74 @@ export class AiService {
     return msgs.map((obj) => JSON.stringify(obj)).join(", ");
   };
 
-  async chatCompletionRequest(msgsObj, res) {
-    // First we need to do a similarity search on the last user message that was sent and that is the last item in the messages array
-    // in the msgsObj.messages property and with the role == 'user'.
-    // Then we need to compile the prompt content with the messages array and the similarity search result.
-
+  async chatCompletionRequest(
+    msgsObj: { threadId?: string; messages: ChatMessage[] },
+    res
+  ) {
+    let searchResults;
     const lastUserMsg = this.getLastUserMsg(msgsObj);
-    console.log("LAST USER MSG: ", lastUserMsg);
-    const searchResults = await this.cosineSimilaritySearch(
-      lastUserMsg.content,
-      msgsObj.threadId,
-    );
-    console.log("SEARCH RESULTS: ", searchResults);
-    const promptContent = this.compilePrompContent(
-      searchResults,
-      lastUserMsg.content,
-      msgsObj.messages,
-    );
 
-    console.log("PROMPT CONTENT: ", promptContent);
+    if (msgsObj.threadId) {
+      searchResults = await this.cosineSimilaritySearch(
+        lastUserMsg.content,
+        msgsObj.threadId
+      );
+    }
+
+    const msgs = await this.messagesRepository.find({
+      where: { threadId: msgsObj.threadId },
+    });
+
+    const threadUsers = msgs.map((msg) => msg.senderId);
+    const users = await this.userService.getUserNames(threadUsers);
+
+    console.log("Users: ", users);
+
+    const senderAndMsgs = msgs
+      .map((msg) => {
+        const sender = users.find((user) => user.id === msg.senderId);
+        return `${sender}: ${msg.message}`;
+      })
+      .join("\n");
+
     const chatMessage: ChatCompletionMessageParam = {
       role: "user",
-      content: promptContent,
+      content: lastUserMsg.content,
+    };
+
+    const assistantPrompt1: ChatCompletionMessageParam = {
+      role: "assistant",
+      content: this.ASSISTANT_PROMPT,
+    };
+
+    const chatHistory = this.chatHistoryToString(msgsObj.messages);
+
+    const assistantPrompt2: ChatCompletionMessageParam = {
+      role: "assistant",
+      content: `Chat History for Context: ${senderAndMsgs}`,
+    };
+
+    const assistantPrompt3: ChatCompletionMessageParam = {
+      role: "assistant",
+      content: `More Context: ${searchResults}`,
+    };
+
+    const assistantPrompt4: ChatCompletionMessageParam = {
+      role: "assistant",
+      content: this.ASSISTANT_TONE_PROMPT,
     };
 
     try {
       const response = await openai2.chat.completions.create({
         model: "gpt-3.5-turbo",
         stream: true,
-        messages: [chatMessage],
-        // max_tokens: 512,
-        // temperature: 0.2,
+        messages: [
+          assistantPrompt1,
+          assistantPrompt2,
+          assistantPrompt3,
+          assistantPrompt4,
+          chatMessage,
+        ],
       });
       const stream = OpenAIStream(response);
       const streamingRes = new StreamingTextResponse(stream).body;
@@ -235,7 +279,7 @@ export class AiService {
 
       return this.readAndWriteStream(reader, res);
     } catch (err) {
-      console.log(err);
+      console.log("Error in chatCompletionRequest: ", err);
     }
   }
 

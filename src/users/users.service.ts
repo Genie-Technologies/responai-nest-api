@@ -53,6 +53,25 @@ export class UsersService {
     }
   }
 
+  async getUserNames(
+    ids: string[]
+  ): Promise<{ id: string; fullName: string }[]> {
+    try {
+      const userNames = await Promise.all(ids.map(async (id) => {
+        const user = await this.getUser(id);
+        return {
+          id: id,
+          fullName: user.firstName,
+        };
+      }));
+
+      return userNames;
+    } catch (error) {
+      console.error("Error -- while getting user names: ", error);
+      return null;
+    }
+  }
+
   async createUser(user?: Users) {
     try {
       return await this.usersRepository.save({
@@ -78,14 +97,6 @@ export class UsersService {
 
       const firstName = name?.split(" ")[0];
       const lastName = name?.split(" ")[1];
-
-      const whereClause = [];
-      const params: {
-        firstName?: string;
-        lastName?: string;
-        email?: string;
-        phone?: string;
-      } = {};
 
       const users = await this.usersRepository
         .createQueryBuilder("users")

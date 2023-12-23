@@ -22,12 +22,23 @@ export class ThreadsService {
     return await this.threadsRepository.find();
   }
 
-  async getThread(threadId: string) {
-    return await this.threadsRepository
+  async getThread(threadId: string, userId?: string) {
+    const res = await this.threadsRepository
       .createQueryBuilder("thread")
       .leftJoinAndSelect("thread.participants", "participants")
       .where("thread.id = :threadId", { threadId })
+      .andWhere("participants.userId != :userId", { userId })
       .getOne();
+
+    if (!res) {
+      const thread = await this.threadsRepository.findOne({
+        where: { id: threadId },
+      });
+      thread.participants = [];
+      return thread;
+    }
+
+    return res;
   }
 
   async saveThread(thread: Threads) {
@@ -50,6 +61,7 @@ export class ThreadsService {
     const threads = await this.participantsRepository.find({
       where: { userId },
     });
+
     const threadsForUser = await Promise.all(
       threads.map(async (thread) => {
         const userThread = await this.threadsRepository.find({
@@ -59,6 +71,7 @@ export class ThreadsService {
         const participants = await this.participantsRepository.find({
           where: { threadId: thread.threadId, userId: Not(userId) },
         });
+
         Object.assign(userThread[0], { participants });
         return userThread[0];
       }),
@@ -82,20 +95,71 @@ export class ThreadsService {
   }
 
   async createThread(newThread: NewThreadRequestPayload) {
-    const newUuid = randomUUID().toString();
+    try {
+      const newUuid = randomUUID().toString();
 
-    const thread = this.threadsRepository.create({
-      id: newUuid,
-      // userId represents the creator of the thread.
-      userId: newThread.userId,
-      createdAt: newThread.createdAt,
-      lastMessage: newThread.lastMessage,
-      threadName: newThread.threadName,
-    });
+      // TODO-AL-NEXT: Now I think we have problem saving thread. Create thread then add message. See what happens.
+      const savedThread = await this.threadsRepository.save({
+        id: newUuid,
+        // userId represents the creator of the thread.
+        userId: newThread.userId,
+        createdAt: newThread.createdAt,
+        isActive: newThread.isActive,
+      });
+      const savedParticipant = await this.participantsRepository.save({
+        threadId: savedThread.id,
+        userId: savedThread.userId,
+      });
 
-    const savedThread = await this.threadsRepository.save(thread);
+      if (savedParticipant) {
+        return savedThread;
+      }
+    } catch (error) {
+      console.log("Error creating thread:", error);
+      return error;
+    }
+  }
 
-    return savedThread;
+  async updateThread(thread: {
+    id: string;
+    threadName: string;
+    createdAt: Date;
+    isActive: boolean;
+    participants: string[];
+  }) {
+    try {
+      let particpants = thread?.participants?.map((participantId) => {
+        return { threadId: thread.id, userId: participantId };
+      });
+
+      if (particpants?.length > 0) {
+        // save all participants at once to db. particapants is an array of objects
+        particpants = await this.participantsRepository.save(particpants);
+        delete thread.participants;
+        const newThread = await this.threadsRepository.save(
+          thread as unknown as Threads,
+        );
+        // @ts-ignore
+        newThread.participants = particpants;
+        return newThread;
+      }
+
+      return await this.threadsRepository.save(thread as unknown as Threads);
+    } catch (error) {
+      console.log("Error updating thread:", error);
+      return error;
+    }
+  }
+
+  async deleteThread(threadId: string) {
+    try {
+      await this.participantsRepository.delete({ threadId });
+      await this.messagesRepository.delete({ threadId });
+      return await this.threadsRepository.delete({ id: threadId });
+    } catch (error) {
+      console.log("Error deleting thread:", error);
+      return error;
+    }
   }
 
   async getMessagesByThread(threadId: string) {
