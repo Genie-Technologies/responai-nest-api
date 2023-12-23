@@ -1,3 +1,5 @@
+# This is only for local development. 
+
 docker-compose build
 docker-compose up -d
 sleep 2
