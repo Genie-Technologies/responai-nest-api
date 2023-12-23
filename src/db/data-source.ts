@@ -57,12 +57,8 @@ export const dataSourceOptions: DataSourceOptions = {
   entities: [Messages, Users, Threads, Participants],
   migrationsTableName: "migration",
   migrations: ["dist/db/migrations/*{.ts,.js}"],
-<<<<<<< HEAD
-  synchronize: true,
-=======
   synchronize: configService.isProduction(),
   // must be commented out for local development
->>>>>>> main
   ssl: configService.isProduction(),
 };
 
@@ -79,11 +75,8 @@ export const vectorSourceOptions: DataSourceOptions = {
   migrationsTableName: "migration",
   migrations: ["dist/db/migrations/*{.ts,.js}"],
   synchronize: false,
-<<<<<<< HEAD
-=======
 
   // must be commented out for local development
->>>>>>> main
   ssl: configService.isProduction(),
 };
 
