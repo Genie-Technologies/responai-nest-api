@@ -57,7 +57,7 @@ export const dataSourceOptions: DataSourceOptions = {
   entities: [Messages, Users, Threads, Participants],
   migrationsTableName: "migration",
   migrations: ["dist/db/migrations/*{.ts,.js}"],
-  synchronize: configService.isProduction(),
+  synchronize: !configService.isProduction(),
   // must be commented out for local development
   ssl: configService.isProduction(),
 };
