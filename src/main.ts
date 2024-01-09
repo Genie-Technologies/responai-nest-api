@@ -17,7 +17,7 @@ async function bootstrap() {
 
   // Enable CORS
   app.enableCors({
-    origin: ["http://localhost:3000", "https://www.responai.com/"],
+    origin: ["http://localhost:3000", "https://www.responai.com"],
   });
 
   // Enable WebSockets
