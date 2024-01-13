@@ -16,9 +16,10 @@ async function bootstrap() {
   app.useBodyParser("text");
 
   // Enable CORS
-  app.enableCors({
-    origin: ["http://localhost:3000", "https://www.responai.com"],
-  });
+  app.enableCors();
+  // {
+  //   origin: ["http://localhost:3000", "https://www.responai.com"],
+  // }
 
   // Enable WebSockets
   app.useWebSocketAdapter(new IoAdapter(app));
