@@ -49,6 +49,28 @@ const dataInit = async (AppDataSource: DataSource) => {
     }),
   );
 
+  await AppDataSource.manager.save(
+    AppDataSource.manager.create(Users, {
+      authOId: "shagun.mistry@hotmail.com",
+      fullName: "shagun.mistry@hotmail.com",
+      email: "shagun.mistry@hotmail.com",
+      picture:
+        "https://s.gravatar.com/avatar/7636d01e1def5b08671a48116e3c777a?s=480&r=pg&d=https%3A%2F%2Fcdn.auth0.com%2Favatars%2Fsh.png",
+      joined: "2023-11-19 11:31:14.194",
+    }),
+  );
+
+  await AppDataSource.manager.save(
+    AppDataSource.manager.create(Users, {
+      authOId: "anicajerkovic4@gmail.com",
+      fullName: "Anica Jerkovic",
+      email: "anicajerkovic4@gmail.com",
+      picture:
+        "https://lh3.googleusercontent.com/a/ACg8ocIUD4-cWcf5Us2Wv3PVaEFjnN0j4QvqFMMd3fPAyL59xCw=s96-c",
+      joined: "2023-12-25 17:40:52.975",
+    }),
+  );
+
   const thread = await AppDataSource.manager.save(
     AppDataSource.manager.create(Threads, {
       userId: user.id,
