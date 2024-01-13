@@ -14,6 +14,7 @@ services:
       caddy.reverse_proxy: "{{upstreams 3001}}"
       caddy_1: aichatapi.lebroncode.com:3002
       caddy_1.reverse_proxy: "{{upstreams 3002}}"
+      caddy_1.reverse_proxy.transport: "http2"
       caddy_1.tls: "internal"
 
   caddy:
