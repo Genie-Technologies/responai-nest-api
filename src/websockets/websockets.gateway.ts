@@ -14,7 +14,7 @@ import { MessagesService } from "src/messages/messages.service";
 import { ThreadsService } from "src/threads/threads.service";
 import { ParticipantsService } from "src/participants/participants.service";
 
-@WebSocketGateway(3002, {
+@WebSocketGateway({
   cors: {
     origin: "*",
     methods: ["GET", "POST"],

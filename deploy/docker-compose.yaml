@@ -7,15 +7,15 @@ services:
     build:
       context: ../
     image: chat-ai-backend
-    ports: ["3001:3001", "3002:3002"]
+    ports: ["3001:3001"] # , "3002:3002"
     networks: ["caddy"]
     labels:
       caddy: aichatapi.lebroncode.com
       caddy.reverse_proxy: "{{upstreams 3001}}"
-      caddy_1: aichatapi.lebroncode.com:3002
-      caddy_1.reverse_proxy: "{{upstreams 3002}}"
+      # caddy_1: aichatapi.lebroncode.com:3002
+      # caddy_1.reverse_proxy: "{{upstreams 3002}}"
       # caddy_1.reverse_proxy.transport: "http2"
-      caddy_1.tls: "internal"
+      # caddy_1.tls: "internal"
       # caddy_1.reverse_proxy.websocket: "true"
       # caddy.@ws.0_header: Connection *Upgrade*
       # caddy.0_reverse_proxy: "@ws {{upstreams}}"

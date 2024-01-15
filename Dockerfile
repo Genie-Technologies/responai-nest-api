@@ -7,7 +7,7 @@ RUN cd /tmp/responseai-nest-api \
     && npm install
 
 EXPOSE 3001/tcp
-EXPOSE 3002/tcp
+# EXPOSE 3002/tcp
 
 CMD npm --prefix /tmp/responseai-nest-api/ run dev 
 
