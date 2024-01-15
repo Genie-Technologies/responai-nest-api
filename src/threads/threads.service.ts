@@ -98,7 +98,6 @@ export class ThreadsService {
     try {
       const newUuid = randomUUID().toString();
 
-      // TODO-AL-NEXT: Now I think we have problem saving thread. Create thread then add message. See what happens.
       const savedThread = await this.threadsRepository.save({
         id: newUuid,
         // userId represents the creator of the thread.

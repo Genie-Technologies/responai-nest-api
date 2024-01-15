@@ -86,7 +86,7 @@ export class MessagesService {
     } catch (error) {}
   }
 
-  // TODO: Dunno if we need this but I'm keeping it her for now incase we need it later.
+  // TODO: Don't know if we need this but I'm keeping it her for now incase we need it later.
   async checkIfThreadExists(userIds: string[]) {
     // Check if the thread exists
     // If the thread exists, return the thread id

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectEntityManager, InjectRepository } from "@nestjs/typeorm";
-import { EntityManager, Repository, Not } from "typeorm";
+import { EntityManager, Repository } from "typeorm";
 import { codeBlock, oneLine } from "common-tags";
 import { CreateEmbeddingResponse } from "openai-edge";
 import { OpenAIStream, StreamingTextResponse } from "ai";
@@ -19,7 +19,7 @@ export class AiService {
   ASSISTANT_PROMPT = `You are a master at social communication and will be answering queries about a chat between people.
   Use the chat history context to answer the user's questions, give your insights and analysis from your knowledge and experience. Try to keep the conversation going.`;
 
-  ASSISTANT_TONE_PROMPT = `Your personality is: "friendly, sarcastic, sassy, and talkative". Use emojis to express your personality. Also adapt your personality to the user's personality based on the chat history context. Be SASSY!`;
+  ASSISTANT_TONE_PROMPT = `Your personality is: "friendly, wise, funny and talkative". Use emojis to express your personality. Also adapt your personality to the user's personality based on the chat history context. Be SASSY!`;
 
   constructor(
     @InjectEntityManager("vectordbConnection")
@@ -28,7 +28,7 @@ export class AiService {
     @InjectRepository(Messages)
     private readonly messagesRepository: Repository<Messages>,
 
-    private readonly userService: UsersService
+    private readonly userService: UsersService,
   ) {}
 
   async saveMsgsEmbdgs(threadId) {
@@ -73,7 +73,7 @@ export class AiService {
 
     if (Array.isArray(msgContent)) {
       tokenizedMsgContent = msgContent.map((msg) =>
-        msg.message.trim().replace(/\n/g, " ")
+        msg.message.trim().replace(/\n/g, " "),
       );
     } else {
       // OpenAI recommends replacing newlines with spaces for best results (specific to embeddings)
@@ -95,7 +95,7 @@ export class AiService {
 
   pairEmbdgsWithMsgs(
     embeddings: { object: string; embedding: number[]; index: number }[],
-    msgs: Messages[]
+    msgs: Messages[],
   ): MsgEmbdngContext[] {
     // @ts-ignore
     return embeddings.map((embdgObj) => {
@@ -120,7 +120,7 @@ export class AiService {
           .into("messages")
           .values(msg)
           .execute();
-      })
+      }),
     );
 
     return res;
@@ -150,7 +150,6 @@ export class AiService {
       embedding: string[];
     }[],
     msgContent: string,
-    msgHistory?: ChatMessage[]
   ) {
     let promptContent = "";
     if (searchResults && searchResults.length > 0) {
@@ -158,8 +157,6 @@ export class AiService {
         return acc + curr.msg + "\n---\n";
       }, "");
     }
-
-    const chatHistory = this.chatHistoryToString(msgHistory);
 
     return codeBlock`
       ${oneLine`
@@ -206,7 +203,7 @@ export class AiService {
 
   async chatCompletionRequest(
     msgsObj: { threadId?: string; messages: ChatMessage[] },
-    res
+    res,
   ) {
     let searchResults;
     const lastUserMsg = this.getLastUserMsg(msgsObj);
@@ -214,7 +211,7 @@ export class AiService {
     if (msgsObj.threadId) {
       searchResults = await this.cosineSimilaritySearch(
         lastUserMsg.content,
-        msgsObj.threadId
+        msgsObj.threadId,
       );
     }
 
@@ -224,8 +221,6 @@ export class AiService {
 
     const threadUsers = msgs.map((msg) => msg.senderId);
     const users = await this.userService.getUserNames(threadUsers);
-
-    console.log("Users: ", users);
 
     const senderAndMsgs = msgs
       .map((msg) => {
@@ -243,8 +238,6 @@ export class AiService {
       role: "assistant",
       content: this.ASSISTANT_PROMPT,
     };
-
-    const chatHistory = this.chatHistoryToString(msgsObj.messages);
 
     const assistantPrompt2: ChatCompletionMessageParam = {
       role: "assistant",
