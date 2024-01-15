@@ -7,7 +7,7 @@ import {
   OnGatewayDisconnect,
 } from "@nestjs/websockets";
 import { Messages } from "src/db/models/messages.entity";
-import { UUID, randomUUID } from "crypto";
+import { randomUUID } from "crypto";
 import { Server, Socket } from "socket.io";
 import { WebhookIncomingMessagePayload } from "src/constants";
 import { MessagesService } from "src/messages/messages.service";
@@ -56,7 +56,6 @@ export class WebsocketsGateway
 
     // TODO: Thread will be created before the message is sent,
     // as a pre-optimization, so we can always ensure that we have a thread_id here.
-    console.log("INCOMING MESSAGE PAYLOAD", payload);
     const message = new Messages();
     message.threadId = payload.thread_id;
     message.message = payload.message;
@@ -70,8 +69,7 @@ export class WebsocketsGateway
     const thread = await this.threadsService.getThread(payload.thread_id);
     message.thread = thread;
     thread.lastMessage = message.message;
-    console.log("THREAD", thread);
-    console.log("message", message);
+
     delete thread.participants;
     await this.threadsService.saveThread(thread);
 

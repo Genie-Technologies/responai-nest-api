@@ -62,8 +62,6 @@ export const dataSourceOptions: DataSourceOptions = {
   ssl: configService.isProduction(),
 };
 
-console.log("IS_PROD", configService.isProduction());
-
 export const vectorSourceOptions: DataSourceOptions = {
   name: "vectordbConnection",
   type: "postgres",
