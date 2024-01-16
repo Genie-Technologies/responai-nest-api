@@ -46,5 +46,5 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 
 - Author - [Shagun Mistry](https://twitter.com/mistry_shagun)
 - Author - [Alex LeBron](https://twitter.com/lebron_tech)
-- Author - [Sarim Khan](https://twitter.com/)
+- Author - [Sarim Khan](https://twitter.com/sarim_khan5)
 - Twitter - [@nestframework](https://twitter.com/responai)
