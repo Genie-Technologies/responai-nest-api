@@ -2,9 +2,11 @@
 
 ## Description
 
-This is the backend repo for the ResponAI messaging app. It is a NestJS repo, uses a psql database with typeorm, websockets, and is deployed through a docker container, serving https traffic through the caddy network docker image. 
+This is the backend repo for the ResponAI messaging app. It is a NestJS repo, uses a psql database with typeorm, websockets, and is deployed through a docker container, serving https traffic through the caddy network docker image.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+The frontend for this application lives [here](https://github.com/Genie-Technologies/ai-chat-next).
+
+This repo was started from the [Nest](https://github.com/nestjs/nest) starter repo.
 
 ## Installation
 
